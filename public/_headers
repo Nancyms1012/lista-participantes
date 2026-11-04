@@ -1,0 +1,14 @@
+# Los scripts y estilos se revalidan siempre: así un cambio nuevo se ve de inmediato
+# (por defecto el navegador los guardaba 4 horas y quedaba mezclado HTML nuevo con JS viejo).
+/admin.js
+  Cache-Control: no-cache
+/xlsx.js
+  Cache-Control: no-cache
+/app.js
+  Cache-Control: no-cache
+/puesto.js
+  Cache-Control: no-cache
+/verificar.js
+  Cache-Control: no-cache
+/styles.css
+  Cache-Control: no-cache

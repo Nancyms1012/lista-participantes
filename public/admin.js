@@ -187,9 +187,16 @@
 
   // Excel real (.xlsx): se abre igual en cualquier computadora, sin importar el separador regional
   function descargarXlsx() {
-    const filas = [ENCABEZADO, ...filasExportar().map((f) => [f[0], f[1], f[2], f[3], f[4] === "" ? "" : Number(f[4]), f[5]])];
-    const bytes = window.crearXlsx({ hoja: "Participantes", anchos: [14, 36, 14, 8, 8, 20], filas });
-    descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `participantes-${hoy()}.xlsx`);
+    try {
+      if (typeof window.crearXlsx !== "function") {
+        return alert("No se cargó el generador de Excel. Recargá la página con Ctrl+Shift+R e intentá de nuevo.");
+      }
+      const filas = [ENCABEZADO, ...filasExportar().map((f) => [f[0], f[1], f[2], f[3], f[4] === "" ? "" : Number(f[4]), f[5]])];
+      const bytes = window.crearXlsx({ hoja: "Participantes", anchos: [14, 36, 14, 8, 8, 20], filas });
+      descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `participantes-${hoy()}.xlsx`);
+    } catch (err) {
+      alert("No se pudo generar el Excel: " + err.message + "\nProbá con el botón CSV.");
+    }
   }
 
   // CSV separado por comas (formato estándar) con BOM para conservar tildes
