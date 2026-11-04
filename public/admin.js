@@ -84,7 +84,7 @@
     );
     $("cuerpo-puestos").innerHTML = total
       ? filas
-          .map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.cedula)}</td><td>${esc(p.nombre)}</td><td>${selectorPuesto(p)}</td></tr>`)
+          .map((p, i) => `<tr><td>${i + 1}</td><td class="nw">${esc(p.cedula)}</td><td>${esc(p.nombre)}</td><td>${selectorPuesto(p)}</td></tr>`)
           .join("")
       : '<tr><td colspan="4">Creá los puestos para poder asignar personas.</td></tr>';
   }
@@ -144,9 +144,9 @@
         const nombreMalo = !REGEX_NOMBRE.test(p.nombre);
         return `<tr>
           <td>${i + 1}</td>
-          <td>${esc(p.cedula)}</td>
+          <td class="nw">${esc(p.cedula)}</td>
           <td${nombreMalo ? ' class="aviso" title="El nombre tiene caracteres que no son letras"' : ""}>${esc(p.nombre)}${nombreMalo ? " ⚠" : ""}</td>
-          <td>${esc(p.telefono)}</td>
+          <td class="nw">${esc(p.telefono)}</td>
           <td>${esc(p.talla)}</td>
           <td>${esc(puestoDe(p) || "—")}</td>
           <td>${esc(fechaTexto(p.fecha))}</td>

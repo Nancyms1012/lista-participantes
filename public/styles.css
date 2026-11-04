@@ -25,7 +25,7 @@ body {
   padding: 20px 16px 40px;
 }
 
-.contenedor.ancho { max-width: 1000px; }
+.contenedor.ancho { max-width: 1400px; }
 
 h1 { font-size: 1.5rem; margin: 8px 0 4px; color: var(--primary-dark); }
 .sub { color: var(--muted); margin: 0 0 18px; }
@@ -94,7 +94,8 @@ form button[type="submit"] { width: 100%; margin-top: 20px; }
 
 .tabla-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: .95rem; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); overflow-wrap: break-word; }
+td.nw, th.nw { white-space: nowrap; }
 th { background: #e8f1ee; position: sticky; top: 0; }
 
 /* Consulta de puesto */
@@ -120,10 +121,11 @@ select.filtro { width: auto; min-width: 150px; }
 .total-label { font-size: 1.05rem; }
 
 /* Edición en admin */
+td.acciones { white-space: nowrap; }
 td.acciones button { padding: 6px 10px; font-size: .85rem; margin-right: 6px; }
 td.aviso { color: var(--error); font-weight: 600; }
 tr.editando td { background: #fffbe6; }
-input.ed, select.ed { padding: 6px 8px; font-size: .9rem; min-width: 110px; width: auto; }
+input.ed, select.ed { padding: 6px 8px; font-size: .9rem; min-width: 70px; width: 100%; }
 
 /* Asignación manual */
 .ayuda { margin: 0 0 10px; color: var(--muted); font-size: .92rem; }
@@ -140,3 +142,15 @@ details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-d
 .tab.activa { background: var(--card); color: var(--primary-dark); box-shadow: 0 -2px 0 var(--primary) inset; }
 .tabs-der { margin-left: auto; display: flex; gap: 8px; padding-bottom: 4px; }
 .tabs-der button { padding: 6px 12px; font-size: .9rem; }
+
+/* Pantallas angostas: tabla compacta para evitar el scroll horizontal */
+@media (max-width: 760px) {
+  .contenedor.ancho { padding-left: 8px; padding-right: 8px; }
+  .card { padding: 12px; }
+  table { font-size: .85rem; }
+  th, td { padding: 6px 4px; }
+  #tab-participantes th:nth-child(1), #tab-participantes td:nth-child(1),
+  #tab-participantes th:nth-child(7), #tab-participantes td:nth-child(7) { display: none; }
+  td.acciones { white-space: normal; }
+  td.acciones button { display: block; margin: 0 0 4px; width: 100%; }
+}
