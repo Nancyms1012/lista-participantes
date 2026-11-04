@@ -16,7 +16,6 @@ export async function onRequestPost({ request, env }) {
   const cedula = String(body.cedula ?? "").trim();
   const nombre = String(body.nombre ?? "").replace(/\s+/g, " ").trim();
   const talla = String(body.talla ?? "").trim();
-  const tallaOtra = String(body.tallaOtra ?? "").replace(/\s+/g, " ").trim();
   const telefono = String(body.telefono ?? "").replace(/[\s-]/g, "");
 
   if (!/^\d{7,15}$/.test(cedula)) {
@@ -27,9 +26,6 @@ export async function onRequestPost({ request, env }) {
   }
   if (!TALLAS.includes(talla)) {
     return json({ error: "Seleccioná una talla de camiseta." }, 400);
-  }
-  if (talla === "Otra" && (tallaOtra.length < 1 || tallaOtra.length > 30)) {
-    return json({ error: "Indicá cuál es la talla (máximo 30 caracteres)." }, 400);
   }
   if (!/^\+?\d{8,15}$/.test(telefono)) {
     return json({ error: "El teléfono debe tener solo números (8 dígitos en Costa Rica)." }, 400);
@@ -45,7 +41,6 @@ export async function onRequestPost({ request, env }) {
     cedula,
     nombre,
     talla,
-    tallaOtra: talla === "Otra" ? tallaOtra : "",
     telefono,
     fecha: new Date().toISOString(),
   };

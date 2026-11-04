@@ -2,7 +2,7 @@
 
 App de registro para la competencia (Cloudflare Pages + Workers KV).
 
-- `/` → formulario público: cédula, nombre completo, teléfono, talla de camiseta (XS, S, M, L, XL, XXL, Otra + campo de texto).
+- `/` → formulario público: cédula, nombre completo, teléfono, talla de camiseta (S, M, L, XL, 2XL).
 - `/admin.html` → administración con clave: ver lista, resumen por talla, buscar, eliminar y **descargar CSV** (Excel).
 
 ## Estructura

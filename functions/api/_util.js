@@ -32,4 +32,4 @@ export function verificarAdmin(request, env) {
   return null;
 }
 
-export const TALLAS = ["XS", "S", "M", "L", "XL", "XXL", "Otra"];
+export const TALLAS = ["S", "M", "L", "XL", "2XL"];

@@ -6,7 +6,6 @@
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
-  const tallaTexto = (p) => (p.talla === "Otra" ? `Otra: ${p.tallaOtra}` : p.talla);
   const fechaTexto = (iso) =>
     new Date(iso).toLocaleString("es-CR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Costa_Rica" });
 
@@ -36,10 +35,9 @@
     // Resumen de tallas (para saber cuántas camisetas pedir)
     const cuenta = {};
     datos.forEach((p) => {
-      const t = p.talla === "Otra" ? `Otra: ${p.tallaOtra.toUpperCase()}` : p.talla;
-      cuenta[t] = (cuenta[t] || 0) + 1;
+      cuenta[p.talla] = (cuenta[p.talla] || 0) + 1;
     });
-    const orden = ["XS", "S", "M", "L", "XL", "XXL"];
+    const orden = ["S", "M", "L", "XL", "2XL"];
     const claves = Object.keys(cuenta).sort((a, b) => {
       const ia = orden.indexOf(a), ib = orden.indexOf(b);
       if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
@@ -54,7 +52,7 @@
           <td>${esc(p.cedula)}</td>
           <td>${esc(p.nombre)}</td>
           <td>${esc(p.telefono)}</td>
-          <td>${esc(tallaTexto(p))}</td>
+          <td>${esc(p.talla)}</td>
           <td>${esc(fechaTexto(p.fecha))}</td>
           <td><button class="peligro" data-del="${esc(p.cedula)}">Eliminar</button></td>
         </tr>`
@@ -69,8 +67,8 @@
     return '"' + s.replace(/"/g, '""') + '"';
   }
   function descargarCsv() {
-    const filas = [["Cédula", "Nombre completo", "Teléfono", "Talla", "Talla (otra)", "Fecha de registro"]];
-    datos.forEach((p) => filas.push([p.cedula, p.nombre, p.telefono, p.talla, p.tallaOtra, fechaTexto(p.fecha)]));
+    const filas = [["Cédula", "Nombre completo", "Teléfono", "Talla", "Fecha de registro"]];
+    datos.forEach((p) => filas.push([p.cedula, p.nombre, p.telefono, p.talla, fechaTexto(p.fecha)]));
     const csv = "\uFEFF" + filas.map((f) => f.map(celdaCsv).join(";")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
