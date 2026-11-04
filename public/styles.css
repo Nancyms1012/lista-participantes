@@ -143,14 +143,29 @@ details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-d
 .tabs-der { margin-left: auto; display: flex; gap: 8px; padding-bottom: 4px; }
 .tabs-der button { padding: 6px 12px; font-size: .9rem; }
 
-/* Pantallas angostas: tabla compacta para evitar el scroll horizontal */
-@media (max-width: 760px) {
-  .contenedor.ancho { padding-left: 8px; padding-right: 8px; }
-  .card { padding: 12px; }
-  table { font-size: .85rem; }
-  th, td { padding: 6px 4px; }
-  #tab-participantes th:nth-child(1), #tab-participantes td:nth-child(1),
-  #tab-participantes th:nth-child(7), #tab-participantes td:nth-child(7) { display: none; }
-  td.acciones { white-space: normal; }
-  td.acciones button { display: block; margin: 0 0 4px; width: 100%; }
+/* Tablet: tabla más compacta para evitar el scroll horizontal */
+@media (max-width: 900px) {
+  .contenedor.ancho { padding-left: 10px; padding-right: 10px; }
+  table { font-size: .88rem; }
+  th, td { padding: 6px 5px; }
+  td.acciones button { padding: 5px 8px; margin-right: 4px; }
 }
+
+/* Celular: cada fila de participantes se muestra como una tarjeta */
+@media (max-width: 640px) {
+  .card { padding: 12px; }
+  #tab-participantes table, #tab-participantes tbody, #tab-participantes tr, #tab-participantes td { display: block; width: 100%; }
+  #tab-participantes thead { display: none; }
+  #tab-participantes tr { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; padding: 6px 10px; background: #fff; }
+  #tab-participantes tr.editando { background: #fffbe6; }
+  #tab-participantes td { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px dashed var(--border); padding: 6px 0; text-align: right; }
+  #tab-participantes td:last-child { border-bottom: none; }
+  #tab-participantes td::before { content: attr(data-label); font-weight: 600; color: var(--muted); text-align: left; flex: 0 0 auto; }
+  #tab-participantes td.acciones { justify-content: flex-end; white-space: normal; }
+  #tab-participantes td.acciones::before { content: none; }
+  #tab-participantes td.acciones button { margin: 0 0 0 6px; }
+  #tab-participantes input.ed, #tab-participantes select.ed { width: 62%; }
+}
+
+/* Verificación de inscripción */
+.nombre-verificado { font-size: 1.6rem; font-weight: 800; color: var(--primary-dark); margin: 8px 0; overflow-wrap: break-word; }

@@ -4,6 +4,7 @@ App de registro para la competencia (Cloudflare Pages + Workers KV).
 
 - `/` → formulario público: cédula, nombre completo, teléfono, talla de camiseta (S, M, L, XL, 2XL).
 - `/admin.html` → administración con clave: ver lista, resumen por talla, buscar, eliminar, **crear puestos de asistencia** (grupos de N personas) y **descargar CSV** (Excel).
+- `/verificar.html` → consulta pública: la persona escribe su cédula y ve **solo su nombre** para confirmar que quedó inscrita (no muestra cédula, teléfono ni talla).
 - `/puesto.html` → consulta pública: la persona escribe su cédula y ve en cuál puesto le corresponde.
 
 ## Estructura
@@ -18,6 +19,7 @@ functions/api/        API (Cloudflare Pages Functions)
   participantes.js    GET / DELETE /api/participantes (requiere clave)
   asignar.js          POST / DELETE /api/asignar (requiere clave): crea o borra los grupos
   puesto.js           GET /api/puesto?cedula=... (público)
+  verificar.js        GET /api/verificar?cedula=... (público, devuelve solo el nombre)
   _util.js
 ```
 

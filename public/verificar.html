@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Verificá tu inscripción</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Verificá tu inscripción</h1>
+    <p class="sub">Escribí tu número de cédula para comprobar que quedaste inscrito/a y que tu nombre está bien escrito.</p>
+
+    <div class="card">
+      <form id="form" novalidate>
+        <label for="cedula">Número de cédula</label>
+        <input id="cedula" type="text" inputmode="numeric" autocomplete="off"
+               maxlength="15" placeholder="Solo números, sin guiones" required>
+        <button type="submit" id="verificar">Verificar</button>
+      </form>
+
+      <div id="resultado" class="oculto" role="status"></div>
+    </div>
+
+    <p class="sub" style="margin-top:16px">
+      <a href="/">← Ir al registro</a> · <a href="/puesto.html">Consultar mi puesto</a>
+    </p>
+  </div>
+
+  <script src="verificar.js"></script>
+</body>
+</html>

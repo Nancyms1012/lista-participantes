@@ -128,13 +128,13 @@
         if (p.cedula === editando) {
           const opts = TALLAS.map((t) => `<option${t === p.talla ? " selected" : ""}>${t}</option>`).join("");
           return `<tr class="editando">
-            <td>${i + 1}</td>
-            <td><input class="ed" id="ed-cedula" inputmode="numeric" value="${esc(p.cedula)}"></td>
-            <td><input class="ed" id="ed-nombre" value="${esc(p.nombre)}"></td>
-            <td><input class="ed" id="ed-telefono" inputmode="numeric" value="${esc(p.telefono)}"></td>
-            <td><select class="ed" id="ed-talla">${opts}</select></td>
-            <td>${esc(puestoDe(p) || "—")}</td>
-            <td>${esc(fechaTexto(p.fecha))}</td>
+            <td data-label="#">${i + 1}</td>
+            <td data-label="Cédula"><input class="ed" id="ed-cedula" inputmode="numeric" value="${esc(p.cedula)}"></td>
+            <td data-label="Nombre"><input class="ed" id="ed-nombre" value="${esc(p.nombre)}"></td>
+            <td data-label="Teléfono"><input class="ed" id="ed-telefono" inputmode="numeric" value="${esc(p.telefono)}"></td>
+            <td data-label="Talla"><select class="ed" id="ed-talla">${opts}</select></td>
+            <td data-label="Puesto">${esc(puestoDe(p) || "—")}</td>
+            <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
             <td class="acciones">
               <button data-guardar="${esc(p.cedula)}">Guardar</button>
               <button class="secundario" data-cancelar="1">Cancelar</button>
@@ -143,13 +143,13 @@
         }
         const nombreMalo = !REGEX_NOMBRE.test(p.nombre);
         return `<tr>
-          <td>${i + 1}</td>
-          <td class="nw">${esc(p.cedula)}</td>
-          <td${nombreMalo ? ' class="aviso" title="El nombre tiene caracteres que no son letras"' : ""}>${esc(p.nombre)}${nombreMalo ? " ⚠" : ""}</td>
-          <td class="nw">${esc(p.telefono)}</td>
-          <td>${esc(p.talla)}</td>
-          <td>${esc(puestoDe(p) || "—")}</td>
-          <td>${esc(fechaTexto(p.fecha))}</td>
+          <td data-label="#">${i + 1}</td>
+          <td data-label="Cédula" class="nw">${esc(p.cedula)}</td>
+          <td data-label="Nombre"${nombreMalo ? ' class="aviso" title="El nombre tiene caracteres que no son letras"' : ""}>${esc(p.nombre)}${nombreMalo ? " ⚠" : ""}</td>
+          <td data-label="Teléfono" class="nw">${esc(p.telefono)}</td>
+          <td data-label="Talla">${esc(p.talla)}</td>
+          <td data-label="Puesto">${esc(puestoDe(p) || "—")}</td>
+          <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
           <td class="acciones">
             <button class="secundario" data-edit="${esc(p.cedula)}">Editar</button>
             <button class="peligro" data-del="${esc(p.cedula)}">Eliminar</button>
