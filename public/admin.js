@@ -159,27 +159,48 @@
       .join("");
   }
 
-  // CSV con ; y BOM para que Excel (español) lo abra con tildes y en columnas
-  function celdaCsv(v) {
-    let s = String(v ?? "");
-    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // evita fórmulas en Excel
-    return '"' + s.replace(/"/g, '""') + '"';
-  }
-  function descargarCsv() {
-    const filas = [["Cédula", "Nombre completo", "Teléfono", "Talla", "Puesto", "Fecha de registro"]];
-    const base = asignacion
+  // ---- Exportación ----
+  const ENCABEZADO = ["Cédula", "Nombre completo", "Teléfono", "Talla", "Puesto", "Fecha de registro"];
+
+  // Fecha sin coma para que no rompa las columnas del CSV: "3/11/26 4:01 a. m."
+  const fechaExport = (iso) => fechaTexto(iso).replace(", ", " ");
+
+  // Filas para exportar (con el mismo contenido en Excel y CSV). Si hay puestos, ordenadas por puesto.
+  function filasExportar() {
+    const base = asignacion && asignacion.puestos
       ? [...datos].sort((a, b) => (puestoDe(a) || 9999) - (puestoDe(b) || 9999))
       : datos;
-    base.forEach((p) => filas.push([p.cedula, p.nombre, p.telefono, p.talla, puestoDe(p), fechaTexto(p.fecha)]));
-    const csv = "\uFEFF" + filas.map((f) => f.map(celdaCsv).join(";")).join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    return base.map((p) => [p.cedula, p.nombre, p.telefono, p.talla, puestoDe(p) || "", fechaExport(p.fecha)]);
+  }
+
+  function descargarArchivo(contenido, tipo, nombre) {
+    const blob = new Blob([contenido], { type: tipo });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `participantes-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = nombre;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(a.href);
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  const hoy = () => new Date().toISOString().slice(0, 10);
+
+  // Excel real (.xlsx): se abre igual en cualquier computadora, sin importar el separador regional
+  function descargarXlsx() {
+    const filas = [ENCABEZADO, ...filasExportar().map((f) => [f[0], f[1], f[2], f[3], f[4] === "" ? "" : Number(f[4]), f[5]])];
+    const bytes = window.crearXlsx({ hoja: "Participantes", anchos: [14, 36, 14, 8, 8, 20], filas });
+    descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `participantes-${hoy()}.xlsx`);
+  }
+
+  // CSV separado por comas (formato estándar) con BOM para conservar tildes
+  function celdaCsv(v) {
+    let s = String(v ?? "");
+    if (/^([=@\t\r]|[+\-](?!\d))/.test(s)) s = "'" + s; // evita fórmulas en Excel (sin tocar teléfonos como +506…)
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  function descargarCsv() {
+    const csv = "\uFEFF" + [ENCABEZADO, ...filasExportar()].map((f) => f.map(celdaCsv).join(",")).join("\r\n");
+    descargarArchivo(csv, "text/csv;charset=utf-8", `participantes-${hoy()}.csv`);
   }
 
   $("login").addEventListener("submit", async (e) => {
@@ -259,6 +280,7 @@
       alert(err.message);
     }
   });
+  $("xlsx").addEventListener("click", descargarXlsx);
   $("csv").addEventListener("click", descargarCsv);
   $("refrescar").addEventListener("click", () => cargar().catch((e) => alert(e.message)));
   $("salir").addEventListener("click", () => {
