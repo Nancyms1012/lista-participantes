@@ -124,3 +124,19 @@ td.acciones button { padding: 6px 10px; font-size: .85rem; margin-right: 6px; }
 td.aviso { color: var(--error); font-weight: 600; }
 tr.editando td { background: #fffbe6; }
 input.ed, select.ed { padding: 6px 8px; font-size: .9rem; min-width: 110px; width: auto; }
+
+/* Asignación manual */
+.ayuda { margin: 0 0 10px; color: var(--muted); font-size: .92rem; }
+.chip.puesto.excede { background: #fdecea; color: var(--error); font-weight: 600; }
+select.sel-puesto { width: auto; min-width: 64px; padding: 6px 8px; font-size: .95rem; }
+select.sel-puesto:disabled { opacity: .5; }
+details.auto { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-dark); margin-bottom: 8px; }
+
+/* Pestañas del admin */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; margin-bottom: -1px; position: relative; z-index: 1; }
+.tab { background: #dfe8e4; color: var(--primary-dark); border: 1px solid var(--border); border-bottom: none; border-radius: 10px 10px 0 0; padding: 10px 16px; font-weight: 600; }
+.tab:hover { background: #cfe0d9; }
+.tab.activa { background: var(--card); color: var(--primary-dark); box-shadow: 0 -2px 0 var(--primary) inset; }
+.tabs-der { margin-left: auto; display: flex; gap: 8px; padding-bottom: 4px; }
+.tabs-der button { padding: 6px 12px; font-size: .9rem; }

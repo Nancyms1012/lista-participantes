@@ -22,44 +22,29 @@
   </div>
 
   <div class="contenedor ancho oculto" id="panel">
-    <h1>Participantes registrados</h1>
-    <p class="sub" id="total"></p>
+    <h1>Administración</h1>
+
     <div class="total-box">
       <span class="total-num" id="total-num">0</span>
       <span class="total-label" id="total-label">total de registrados</span>
     </div>
 
-    <div class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab activa" id="btn-tab-participantes" data-tab="participantes" role="tab">👥 Participantes</button>
+      <button class="tab" id="btn-tab-puestos" data-tab="puestos" role="tab">📍 Puestos de asistencia</button>
+      <span class="tabs-der">
+        <button id="refrescar" class="secundario">↻ Actualizar</button>
+        <button id="salir" class="secundario">Salir</button>
+      </span>
+    </div>
+
+    <!-- ===== Pestaña: Participantes ===== -->
+    <div class="card" id="tab-participantes">
       <div class="resumen" id="resumen"></div>
-
-      <div class="grupos">
-        <h2>Puestos de asistencia</h2>
-        <div class="grupos-form">
-          <div class="campo">
-            <label for="tamano">Personas por puesto</label>
-            <input id="tamano" type="number" min="1" max="500" value="10">
-          </div>
-          <div class="campo">
-            <label for="modo">Cómo repartir</label>
-            <select id="modo">
-              <option value="orden">Por orden de inscripción</option>
-              <option value="aleatorio">Al azar</option>
-            </select>
-          </div>
-          <button id="crear-grupos">Crear grupos</button>
-          <button id="borrar-grupos" class="secundario">Borrar asignación</button>
-        </div>
-        <p class="grupos-estado" id="grupos-estado"></p>
-        <div class="resumen" id="resumen-puestos"></div>
-      </div>
-
 
       <div class="barra">
         <input id="buscar" type="search" placeholder="Buscar por cédula, nombre o teléfono…">
-        <select id="filtro-puesto" class="filtro"><option value="">Todos los puestos</option></select>
         <button id="csv">⬇ Descargar CSV (Excel)</button>
-        <button id="refrescar" class="secundario">↻ Actualizar</button>
-        <button id="salir" class="secundario">Salir</button>
       </div>
 
       <div class="tabla-wrap">
@@ -71,6 +56,57 @@
             </tr>
           </thead>
           <tbody id="cuerpo"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== Pestaña: Puestos de asistencia ===== -->
+    <div class="card oculto" id="tab-puestos">
+      <div class="grupos">
+        <h2>Configuración de puestos</h2>
+        <p class="ayuda">1) Definí cuántos puestos hay. 2) Asigná a cada persona su puesto con el selector de la tabla de abajo.</p>
+        <div class="grupos-form">
+          <div class="campo">
+            <label for="num-puestos">Cantidad de puestos</label>
+            <input id="num-puestos" type="number" min="1" max="100" value="7">
+          </div>
+          <div class="campo">
+            <label for="tamano">Personas por puesto</label>
+            <input id="tamano" type="number" min="1" max="500" value="10">
+          </div>
+          <button id="guardar-puestos">Guardar puestos</button>
+          <button id="borrar-grupos" class="secundario">Borrar asignación</button>
+        </div>
+        <p class="grupos-estado" id="grupos-estado"></p>
+        <div class="resumen" id="resumen-puestos"></div>
+
+        <details class="auto">
+          <summary>Reparto automático (opcional)</summary>
+          <p class="ayuda">Reparte a todos de una vez en grupos del tamaño indicado. <b>Reemplaza lo que hayas asignado a mano.</b></p>
+          <div class="grupos-form">
+            <div class="campo">
+              <label for="modo">Cómo repartir</label>
+              <select id="modo">
+                <option value="orden">Por orden de inscripción</option>
+                <option value="aleatorio">Al azar</option>
+              </select>
+            </div>
+            <button id="crear-grupos" class="secundario">Repartir automáticamente</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="barra">
+        <input id="buscar-puestos" type="search" placeholder="Buscar por cédula o nombre…">
+        <select id="filtro-puesto" class="filtro"><option value="">Todos</option></select>
+      </div>
+
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Cédula</th><th>Nombre completo</th><th>Puesto</th></tr>
+          </thead>
+          <tbody id="cuerpo-puestos"></tbody>
         </table>
       </div>
     </div>

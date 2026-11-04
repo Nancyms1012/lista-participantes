@@ -32,9 +32,11 @@
     pintar();
   }
 
+  // Pestaña "Puestos": configuración, resumen y tabla de asignación manual
   function pintarPuestos() {
     const sel = $("filtro-puesto");
     const actual = sel.value;
+    const total = asignacion ? asignacion.puestos || 0 : 0;
     const cuenta = {};
     let sinPuesto = 0;
     datos.forEach((p) => {
@@ -42,37 +44,68 @@
       if (n) cuenta[n] = (cuenta[n] || 0) + 1;
       else sinPuesto++;
     });
-    const nums = Object.keys(cuenta).map(Number).sort((a, b) => a - b);
 
-    let opts = '<option value="">Todos los puestos</option>';
-    nums.forEach((n) => (opts += `<option value="${n}">Puesto ${n}</option>`));
-    if (nums.length && sinPuesto) opts += '<option value="sin">Sin puesto</option>';
+    let opts = '<option value="">Todos</option>';
+    for (let n = 1; n <= total; n++) opts += `<option value="${n}">Puesto ${n}</option>`;
+    if (total) opts += '<option value="sin">Sin puesto</option>';
     sel.innerHTML = opts;
     sel.value = [...sel.options].some((o) => o.value === actual) ? actual : "";
 
-    if (!asignacion) {
-      $("grupos-estado").textContent = "Todavía no se han creado los grupos.";
+    if (!total) {
+      $("grupos-estado").textContent = "Todavía no se han creado los puestos. Indicá la cantidad y tocá «Guardar puestos».";
       $("resumen-puestos").innerHTML = "";
-      return;
+    } else {
+      if (document.activeElement !== $("num-puestos")) $("num-puestos").value = total;
+      if (asignacion.tamano && document.activeElement !== $("tamano")) $("tamano").value = asignacion.tamano;
+
+      const cap = asignacion.tamano || 0;
+      const excedidos = Object.keys(cuenta).filter((n) => cap && cuenta[n] > cap);
+      $("grupos-estado").textContent =
+        `${total} puesto${total === 1 ? "" : "s"}` + (cap ? ` de hasta ${cap} personas` : "") + ". " +
+        (sinPuesto ? `${sinPuesto} persona${sinPuesto === 1 ? "" : "s"} sin puesto.` : "Todas las personas tienen puesto.") +
+        (excedidos.length ? ` ⚠ Puesto${excedidos.length === 1 ? "" : "s"} con más de ${cap}: ${excedidos.join(", ")}.` : "");
+
+      let chips = "";
+      for (let n = 1; n <= total; n++) {
+        const c = cuenta[n] || 0;
+        const clase = cap && c > cap ? "chip puesto excede" : "chip puesto";
+        chips += `<span class="${clase}">Puesto ${n}: <b>${c}</b>${cap ? " / " + cap : ""}</span>`;
+      }
+      $("resumen-puestos").innerHTML = chips;
     }
-    $("grupos-estado").textContent =
-      `Grupos creados el ${fechaTexto(asignacion.fecha)}: ${asignacion.puestos} puesto${asignacion.puestos === 1 ? "" : "s"} ` +
-      `de ${asignacion.tamano} (${asignacion.modo === "aleatorio" ? "al azar" : "por orden de inscripción"}).` +
-      (sinPuesto ? ` ${sinPuesto} inscrito${sinPuesto === 1 ? "" : "s"} nuevo${sinPuesto === 1 ? "" : "s"} sin puesto: volvé a crear los grupos.` : "");
-    $("resumen-puestos").innerHTML = nums.map((n) => `<span class="chip puesto">Puesto ${n}: <b>${cuenta[n]}</b></span>`).join("");
+
+    // Tabla de asignación manual
+    const q = $("buscar-puestos").value.trim().toLowerCase();
+    const fp = sel.value;
+    const filas = datos.filter(
+      (p) =>
+        (!q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q)) &&
+        (!fp || (fp === "sin" ? !puestoDe(p) : String(puestoDe(p)) === fp))
+    );
+    $("cuerpo-puestos").innerHTML = total
+      ? filas
+          .map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.cedula)}</td><td>${esc(p.nombre)}</td><td>${selectorPuesto(p)}</td></tr>`)
+          .join("")
+      : '<tr><td colspan="4">Creá los puestos para poder asignar personas.</td></tr>';
+  }
+
+  // Selector de puesto para una fila
+  function selectorPuesto(p) {
+    const total = asignacion ? asignacion.puestos || 0 : 0;
+    if (!total) return "—";
+    const actual = puestoDe(p);
+    let o = `<option value=""${actual ? "" : " selected"}>—</option>`;
+    for (let n = 1; n <= total; n++) o += `<option value="${n}"${n === actual ? " selected" : ""}>${n}</option>`;
+    return `<select class="sel-puesto" data-puesto-de="${esc(p.cedula)}" aria-label="Puesto de ${esc(p.nombre)}">${o}</select>`;
   }
 
   function pintar() {
-    pintarPuestos(); // primero, para que el filtro de puesto esté al día
+    pintarPuestos();
     const q = $("buscar").value.trim().toLowerCase();
-    const fp = $("filtro-puesto").value;
     const filtrados = datos.filter(
-      (p) =>
-        (!q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q) || p.telefono.includes(q)) &&
-        (!fp || (fp === "sin" ? !puestoDe(p) : String(puestoDe(p)) === fp))
+      (p) => !q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q) || p.telefono.includes(q)
     );
 
-    $("total").textContent = "";
     $("total-num").textContent = datos.length;
     $("total-label").textContent = datos.length === 1 ? "persona registrada" : "personas registradas";
     if (filtrados.length !== datos.length) $("total-label").textContent += ` (mostrando ${filtrados.length})`;
@@ -162,13 +195,49 @@
   });
 
   $("buscar").addEventListener("input", pintar);
+  $("buscar-puestos").addEventListener("input", pintar);
   $("filtro-puesto").addEventListener("change", pintar);
+  $("guardar-puestos").addEventListener("click", async () => {
+    const puestos = parseInt($("num-puestos").value, 10);
+    const tamano = parseInt($("tamano").value, 10);
+    if (!puestos || puestos < 1) return alert("Escribí la cantidad de puestos.");
+    if (!tamano || tamano < 1) return alert("Escribí cuántas personas van por puesto.");
+    try {
+      await api("/api/asignar", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puestos, tamano }),
+      });
+      await cargar();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+  // Asignación manual: al cambiar el selector de una fila se guarda en el momento
+  $("cuerpo-puestos").addEventListener("change", async (e) => {
+    const ced = e.target.dataset && e.target.dataset.puestoDe;
+    if (!ced) return;
+    const valor = e.target.value;
+    e.target.disabled = true;
+    try {
+      const r = await api("/api/asignar", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cedula: ced, puesto: valor === "" ? null : Number(valor) }),
+      });
+      asignacion = r.asignacion;
+      pintar();
+    } catch (err) {
+      alert(err.message);
+      await cargar();
+    }
+  });
   $("crear-grupos").addEventListener("click", async () => {
     const tamano = parseInt($("tamano").value, 10);
     if (!tamano || tamano < 1) return alert("Escribí cuántas personas van por puesto.");
     const puestos = Math.ceil(datos.length / tamano);
-    const aviso = asignacion ? "\n\nEsto REEMPLAZA la asignación anterior y los puestos pueden cambiar." : "";
-    if (!confirm(`Se crearán ${puestos} puesto(s) de hasta ${tamano} personas con ${datos.length} inscritos.${aviso}\n\n¿Continuar?`)) return;
+    const aviso = asignacion && Object.keys(asignacion.mapa || {}).length ? "\n\nEsto REEMPLAZA toda la asignación actual, incluida la que hiciste a mano." : "";
+    if (!confirm(`Se repartirán ${datos.length} inscritos en ${puestos} puesto(s) de hasta ${tamano} personas.${aviso}\n\n¿Continuar?`)) return;
     try {
       await api("/api/asignar", {
         method: "POST",
@@ -182,7 +251,7 @@
   });
   $("borrar-grupos").addEventListener("click", async () => {
     if (!asignacion) return alert("No hay asignación que borrar.");
-    if (!confirm("¿Borrar la asignación? Las personas ya no verán su puesto en la consulta.")) return;
+    if (!confirm("¿Borrar TODA la asignación (puestos y personas asignadas)? Las personas ya no verán su puesto en la consulta.")) return;
     try {
       await api("/api/asignar", { method: "DELETE" });
       await cargar();
@@ -241,6 +310,18 @@
       }
     }
   });
+
+
+  // ---- Pestañas ----
+  function mostrarTab(nombre) {
+    ["participantes", "puestos"].forEach((t) => {
+      $("tab-" + t).classList.toggle("oculto", t !== nombre);
+      $("btn-tab-" + t).classList.toggle("activa", t === nombre);
+    });
+    sessionStorage.setItem("adminTab", nombre);
+  }
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => mostrarTab(b.dataset.tab)));
+  mostrarTab(sessionStorage.getItem("adminTab") === "puestos" ? "puestos" : "participantes");
 
   if (clave) cargar().catch(() => sessionStorage.removeItem("adminClave"));
 })();
