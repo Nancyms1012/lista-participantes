@@ -118,3 +118,9 @@ select.filtro { width: auto; min-width: 150px; }
 .total-box { display: flex; align-items: baseline; gap: 12px; background: var(--primary); color: #fff; border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; }
 .total-num { font-size: 2.6rem; font-weight: 800; line-height: 1; }
 .total-label { font-size: 1.05rem; }
+
+/* Edición en admin */
+td.acciones button { padding: 6px 10px; font-size: .85rem; margin-right: 6px; }
+td.aviso { color: var(--error); font-weight: 600; }
+tr.editando td { background: #fffbe6; }
+input.ed, select.ed { padding: 6px 8px; font-size: .9rem; min-width: 110px; width: auto; }

@@ -6,6 +6,8 @@
   const talla = document.getElementById("talla");
   const cedula = document.getElementById("cedula");
   const telefono = document.getElementById("telefono");
+  const nombreInput = document.getElementById("nombre");
+  const REGEX_NOMBRE = /^\p{L}+(?:[ '’-]+\p{L}+)*$/u;
 
   function mostrar(texto, tipo) {
     msg.textContent = texto;
@@ -18,6 +20,9 @@
   // Solo números en cédula y teléfono
   cedula.addEventListener("input", () => {
     cedula.value = cedula.value.replace(/\D/g, "");
+  });
+  nombreInput.addEventListener("input", () => {
+    nombreInput.value = nombreInput.value.replace(/[^\p{L}\s'’-]/gu, "");
   });
   telefono.addEventListener("input", () => {
     telefono.value = telefono.value.replace(/[^\d+]/g, "");
@@ -36,6 +41,7 @@
 
     if (!/^\d{7,15}$/.test(datos.cedula)) return mostrar("La cédula debe contener solo números.", "error");
     if (datos.nombre.length < 5) return mostrar("Escribí tu nombre completo.", "error");
+    if (!REGEX_NOMBRE.test(datos.nombre.replace(/\s+/g, " "))) return mostrar("El nombre debe contener solo letras.", "error");
     if (!/^\+?\d{8,15}$/.test(datos.telefono)) return mostrar("Escribí un teléfono válido (solo números).", "error");
     if (!datos.talla) return mostrar("Seleccioná una talla de camiseta.", "error");
 

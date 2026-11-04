@@ -1,4 +1,4 @@
-import { json, TALLAS } from "./_util.js";
+import { json, validarParticipante } from "./_util.js";
 
 // POST /api/registrar  -> guarda un participante
 export async function onRequestPost({ request, env }) {
@@ -13,23 +13,9 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Datos inválidos." }, 400);
   }
 
-  const cedula = String(body.cedula ?? "").trim();
-  const nombre = String(body.nombre ?? "").replace(/\s+/g, " ").trim();
-  const talla = String(body.talla ?? "").trim();
-  const telefono = String(body.telefono ?? "").replace(/[\s-]/g, "");
-
-  if (!/^\d{7,15}$/.test(cedula)) {
-    return json({ error: "La cédula debe contener solo números (sin guiones ni espacios)." }, 400);
-  }
-  if (nombre.length < 5 || nombre.length > 100) {
-    return json({ error: "Escribí el nombre completo." }, 400);
-  }
-  if (!TALLAS.includes(talla)) {
-    return json({ error: "Seleccioná una talla de camiseta." }, 400);
-  }
-  if (!/^\+?\d{8,15}$/.test(telefono)) {
-    return json({ error: "El teléfono debe tener solo números (8 dígitos en Costa Rica)." }, 400);
-  }
+  const v = validarParticipante(body);
+  if (v.error) return json({ error: v.error }, 400);
+  const { cedula, nombre, talla, telefono } = v.datos;
 
   const key = `p:${cedula}`;
   const existente = await env.PARTICIPANTES.get(key);

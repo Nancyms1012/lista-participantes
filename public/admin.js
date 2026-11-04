@@ -3,6 +3,9 @@
   let clave = sessionStorage.getItem("adminClave") || "";
   let datos = [];
   let asignacion = null;
+  let editando = null; // cédula de la fila que se está editando
+  const TALLAS = ["S", "M", "L", "XL", "2XL"];
+  const REGEX_NOMBRE = /^\p{L}+(?:[ '’-]+\p{L}+)*$/u;
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -23,6 +26,7 @@
     const data = await api("/api/participantes");
     datos = data.participantes;
     asignacion = data.asignacion || null;
+    if (editando && !datos.some((p) => p.cedula === editando)) editando = null;
     $("login-box").classList.add("oculto");
     $("panel").classList.remove("oculto");
     pintar();
@@ -87,18 +91,38 @@
     $("resumen").innerHTML = claves.map((k) => `<span class="chip">${esc(k)}: <b>${cuenta[k]}</b></span>`).join("");
 
     $("cuerpo").innerHTML = filtrados
-      .map(
-        (p, i) => `<tr>
+      .map((p, i) => {
+        if (p.cedula === editando) {
+          const opts = TALLAS.map((t) => `<option${t === p.talla ? " selected" : ""}>${t}</option>`).join("");
+          return `<tr class="editando">
+            <td>${i + 1}</td>
+            <td><input class="ed" id="ed-cedula" inputmode="numeric" value="${esc(p.cedula)}"></td>
+            <td><input class="ed" id="ed-nombre" value="${esc(p.nombre)}"></td>
+            <td><input class="ed" id="ed-telefono" inputmode="numeric" value="${esc(p.telefono)}"></td>
+            <td><select class="ed" id="ed-talla">${opts}</select></td>
+            <td>${esc(puestoDe(p) || "—")}</td>
+            <td>${esc(fechaTexto(p.fecha))}</td>
+            <td class="acciones">
+              <button data-guardar="${esc(p.cedula)}">Guardar</button>
+              <button class="secundario" data-cancelar="1">Cancelar</button>
+            </td>
+          </tr>`;
+        }
+        const nombreMalo = !REGEX_NOMBRE.test(p.nombre);
+        return `<tr>
           <td>${i + 1}</td>
           <td>${esc(p.cedula)}</td>
-          <td>${esc(p.nombre)}</td>
+          <td${nombreMalo ? ' class="aviso" title="El nombre tiene caracteres que no son letras"' : ""}>${esc(p.nombre)}${nombreMalo ? " ⚠" : ""}</td>
           <td>${esc(p.telefono)}</td>
           <td>${esc(p.talla)}</td>
           <td>${esc(puestoDe(p) || "—")}</td>
           <td>${esc(fechaTexto(p.fecha))}</td>
-          <td><button class="peligro" data-del="${esc(p.cedula)}">Eliminar</button></td>
-        </tr>`
-      )
+          <td class="acciones">
+            <button class="secundario" data-edit="${esc(p.cedula)}">Editar</button>
+            <button class="peligro" data-del="${esc(p.cedula)}">Eliminar</button>
+          </td>
+        </tr>`;
+      })
       .join("");
   }
 
@@ -173,14 +197,48 @@
     location.reload();
   });
   $("cuerpo").addEventListener("click", async (e) => {
-    const ced = e.target.dataset && e.target.dataset.del;
-    if (!ced) return;
-    if (!confirm(`¿Eliminar el registro de la cédula ${ced}?`)) return;
-    try {
-      await api(`/api/participantes?cedula=${encodeURIComponent(ced)}`, { method: "DELETE" });
-      await cargar();
-    } catch (err) {
-      alert(err.message);
+    const d = e.target.dataset || {};
+
+    if (d.edit) {
+      editando = d.edit;
+      return pintar();
+    }
+    if (d.cancelar) {
+      editando = null;
+      return pintar();
+    }
+    if (d.guardar) {
+      const nuevo = {
+        original: d.guardar,
+        cedula: $("ed-cedula").value.trim(),
+        nombre: $("ed-nombre").value.replace(/\s+/g, " ").trim(),
+        telefono: $("ed-telefono").value.trim(),
+        talla: $("ed-talla").value,
+      };
+      if (!/^\d{7,15}$/.test(nuevo.cedula)) return alert("La cédula debe contener solo números.");
+      if (nuevo.nombre.length < 5 || !REGEX_NOMBRE.test(nuevo.nombre)) return alert("El nombre debe contener solo letras.");
+      if (!/^\+?\d{8,15}$/.test(nuevo.telefono.replace(/[\s-]/g, ""))) return alert("El teléfono debe tener solo números.");
+      try {
+        await api("/api/participantes", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevo),
+        });
+        editando = null;
+        await cargar();
+      } catch (err) {
+        alert(err.message);
+      }
+      return;
+    }
+    if (d.del) {
+      if (!confirm(`¿Eliminar el registro de la cédula ${d.del}? Esta acción no se puede deshacer.`)) return;
+      try {
+        await api(`/api/participantes?cedula=${encodeURIComponent(d.del)}`, { method: "DELETE" });
+        await cargar();
+      } catch (err) {
+        alert(err.message);
+      }
     }
   });
 
