@@ -113,3 +113,8 @@ th { background: #e8f1ee; position: sticky; top: 0; }
 .grupos-estado { margin: 10px 0 0; color: var(--muted); font-size: .92rem; }
 .chip.puesto { background: #dbeee6; }
 select.filtro { width: auto; min-width: 150px; }
+
+/* Total de registrados */
+.total-box { display: flex; align-items: baseline; gap: 12px; background: var(--primary); color: #fff; border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; }
+.total-num { font-size: 2.6rem; font-weight: 800; line-height: 1; }
+.total-label { font-size: 1.05rem; }

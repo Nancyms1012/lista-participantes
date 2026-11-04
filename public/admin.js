@@ -68,7 +68,10 @@
         (!fp || (fp === "sin" ? !puestoDe(p) : String(puestoDe(p)) === fp))
     );
 
-    $("total").textContent = `${datos.length} participante${datos.length === 1 ? "" : "s"} en total`;
+    $("total").textContent = "";
+    $("total-num").textContent = datos.length;
+    $("total-label").textContent = datos.length === 1 ? "persona registrada" : "personas registradas";
+    if (filtrados.length !== datos.length) $("total-label").textContent += ` (mostrando ${filtrados.length})`;
 
     // Resumen de tallas (para saber cuántas camisetas pedir)
     const cuenta = {};
