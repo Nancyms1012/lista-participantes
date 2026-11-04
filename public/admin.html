@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Administración - Participantes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="contenedor" id="login-box">
+    <h1>Administración</h1>
+    <p class="sub">Ingresá la clave para ver los participantes.</p>
+    <div class="card">
+      <form id="login">
+        <label for="clave">Clave</label>
+        <input id="clave" type="password" autocomplete="current-password" required>
+        <div id="login-msg" class="mensaje error oculto"></div>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="contenedor ancho oculto" id="panel">
+    <h1>Participantes registrados</h1>
+    <p class="sub" id="total"></p>
+
+    <div class="card">
+      <div class="resumen" id="resumen"></div>
+
+      <div class="barra">
+        <input id="buscar" type="search" placeholder="Buscar por cédula, nombre o teléfono…">
+        <button id="csv">⬇ Descargar CSV (Excel)</button>
+        <button id="refrescar" class="secundario">↻ Actualizar</button>
+        <button id="salir" class="secundario">Salir</button>
+      </div>
+
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Cédula</th><th>Nombre completo</th><th>Teléfono</th>
+              <th>Talla</th><th>Fecha</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

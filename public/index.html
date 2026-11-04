@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Registro de participantes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Registro de participantes</h1>
+    <p class="sub">Completá tus datos para registrarte.</p>
+
+    <div class="card">
+      <form id="form" novalidate>
+        <label for="cedula">Número de cédula</label>
+        <input id="cedula" name="cedula" type="text" inputmode="numeric" autocomplete="off"
+               maxlength="15" placeholder="Solo números, sin guiones" required>
+
+        <label for="nombre">Nombre completo</label>
+        <input id="nombre" name="nombre" type="text" autocomplete="name" maxlength="100"
+               placeholder="Nombre y apellidos" required>
+
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" name="telefono" type="tel" inputmode="numeric" autocomplete="tel"
+               maxlength="16" placeholder="Ej: 88887777" required>
+
+        <label for="talla">Talla de camiseta</label>
+        <select id="talla" name="talla" required>
+          <option value="">Seleccioná una talla…</option>
+          <option>XS</option>
+          <option>S</option>
+          <option>M</option>
+          <option>L</option>
+          <option>XL</option>
+          <option>XXL</option>
+          <option>Otra</option>
+        </select>
+
+        <div id="otra-wrap" class="oculto">
+          <label for="tallaOtra">¿Cuál talla?</label>
+          <input id="tallaOtra" name="tallaOtra" type="text" maxlength="30" placeholder="Escribí la talla">
+        </div>
+
+        <div id="mensaje" class="mensaje oculto" role="alert"></div>
+
+        <button type="submit" id="enviar">Registrarme</button>
+      </form>
+
+      <div id="exito" class="exito oculto">
+        <div class="check">✅</div>
+        <h2>¡Registro completado!</h2>
+        <p>Tus datos fueron guardados correctamente.</p>
+        <button type="button" id="otro" class="secundario">Registrar a otra persona</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
