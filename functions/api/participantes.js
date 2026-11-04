@@ -1,4 +1,4 @@
-import { json, verificarAdmin } from "./_util.js";
+import { json, verificarAdmin, listarParticipantes, LLAVE_ASIGNACION } from "./_util.js";
 
 // GET /api/participantes  -> lista completa (solo admin)
 export async function onRequestGet({ request, env }) {
@@ -8,23 +8,9 @@ export async function onRequestGet({ request, env }) {
     return json({ error: "Falta conectar el KV 'PARTICIPANTES' en Cloudflare." }, 500);
   }
 
-  const lista = [];
-  let cursor;
-  do {
-    const res = await env.PARTICIPANTES.list({ prefix: "p:", cursor });
-    for (const k of res.keys) {
-      if (k.metadata) {
-        lista.push(k.metadata);
-      } else {
-        const v = await env.PARTICIPANTES.get(k.name, "json");
-        if (v) lista.push(v);
-      }
-    }
-    cursor = res.list_complete ? undefined : res.cursor;
-  } while (cursor);
-
-  lista.sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
-  return json({ participantes: lista });
+  const lista = await listarParticipantes(env);
+  const asignacion = await env.PARTICIPANTES.get(LLAVE_ASIGNACION, "json");
+  return json({ participantes: lista, asignacion });
 }
 
 // DELETE /api/participantes?cedula=123  -> elimina un registro (solo admin)

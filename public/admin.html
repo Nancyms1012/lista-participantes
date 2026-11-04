@@ -28,8 +28,31 @@
     <div class="card">
       <div class="resumen" id="resumen"></div>
 
+      <div class="grupos">
+        <h2>Puestos de asistencia</h2>
+        <div class="grupos-form">
+          <div class="campo">
+            <label for="tamano">Personas por puesto</label>
+            <input id="tamano" type="number" min="1" max="500" value="10">
+          </div>
+          <div class="campo">
+            <label for="modo">Cómo repartir</label>
+            <select id="modo">
+              <option value="orden">Por orden de inscripción</option>
+              <option value="aleatorio">Al azar</option>
+            </select>
+          </div>
+          <button id="crear-grupos">Crear grupos</button>
+          <button id="borrar-grupos" class="secundario">Borrar asignación</button>
+        </div>
+        <p class="grupos-estado" id="grupos-estado"></p>
+        <div class="resumen" id="resumen-puestos"></div>
+      </div>
+
+
       <div class="barra">
         <input id="buscar" type="search" placeholder="Buscar por cédula, nombre o teléfono…">
+        <select id="filtro-puesto" class="filtro"><option value="">Todos los puestos</option></select>
         <button id="csv">⬇ Descargar CSV (Excel)</button>
         <button id="refrescar" class="secundario">↻ Actualizar</button>
         <button id="salir" class="secundario">Salir</button>
@@ -40,7 +63,7 @@
           <thead>
             <tr>
               <th>#</th><th>Cédula</th><th>Nombre completo</th><th>Teléfono</th>
-              <th>Talla</th><th>Fecha</th><th></th>
+              <th>Talla</th><th>Puesto</th><th>Fecha</th><th></th>
             </tr>
           </thead>
           <tbody id="cuerpo"></tbody>

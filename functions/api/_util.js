@@ -33,3 +33,26 @@ export function verificarAdmin(request, env) {
 }
 
 export const TALLAS = ["S", "M", "L", "XL", "2XL"];
+
+// Lee todos los participantes del KV, ordenados por fecha de registro
+export async function listarParticipantes(env) {
+  const lista = [];
+  let cursor;
+  do {
+    const res = await env.PARTICIPANTES.list({ prefix: "p:", cursor });
+    for (const k of res.keys) {
+      if (k.metadata) {
+        lista.push(k.metadata);
+      } else {
+        const v = await env.PARTICIPANTES.get(k.name, "json");
+        if (v) lista.push(v);
+      }
+    }
+    cursor = res.list_complete ? undefined : res.cursor;
+  } while (cursor);
+  lista.sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
+  return lista;
+}
+
+// Llave del KV donde se guarda la asignación de puestos
+export const LLAVE_ASIGNACION = "asignacion";

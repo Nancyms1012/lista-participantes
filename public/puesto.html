@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Consultá tu puesto de asistencia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Consultá tu puesto de asistencia</h1>
+    <p class="sub">Escribí tu número de cédula para saber en cuál puesto te corresponde.</p>
+
+    <div class="card">
+      <form id="form" novalidate>
+        <label for="cedula">Número de cédula</label>
+        <input id="cedula" type="text" inputmode="numeric" autocomplete="off"
+               maxlength="15" placeholder="Solo números, sin guiones" required>
+        <button type="submit" id="consultar">Consultar mi puesto</button>
+      </form>
+
+      <div id="resultado" class="oculto"></div>
+    </div>
+
+    <p class="sub" style="margin-top:16px"><a href="/">← Ir al registro</a></p>
+  </div>
+
+  <script src="puesto.js"></script>
+</body>
+</html>
