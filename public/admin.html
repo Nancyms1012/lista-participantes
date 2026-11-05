@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Administración - Participantes</title>
-  <link rel="stylesheet" href="styles.css?v=20261104a">
+  <link rel="stylesheet" href="styles.css?v=20261104b">
 </head>
 <body>
   <div class="contenedor" id="login-box">
@@ -32,6 +32,7 @@
     <div class="tabs" role="tablist">
       <button class="tab activa" id="btn-tab-participantes" data-tab="participantes" role="tab">👥 Participantes</button>
       <button class="tab" id="btn-tab-puestos" data-tab="puestos" role="tab">📍 Puestos de asistencia</button>
+      <button class="tab" id="btn-tab-cuadros" data-tab="cuadros" role="tab">🗂️ Cuadros</button>
       <span class="tabs-der">
         <button id="refrescar" class="secundario">↻ Actualizar</button>
         <button id="salir" class="secundario">Salir</button>
@@ -111,9 +112,18 @@
         </table>
       </div>
     </div>
+
+    <!-- ===== Pestaña: Cuadros (puestos como cajas con nombres) ===== -->
+    <div class="card oculto" id="tab-cuadros">
+      <div class="barra barra-cuadros no-print">
+        <span class="ayuda" id="cuadros-info"></span>
+        <button id="imprimir-cuadros" class="secundario">🖨️ Imprimir / PDF</button>
+      </div>
+      <div id="cuadros" class="cuadros"></div>
+    </div>
   </div>
 
-  <script src="xlsx.js?v=20261104a"></script>
-  <script src="admin.js?v=20261104a"></script>
+  <script src="xlsx.js?v=20261104b"></script>
+  <script src="admin.js?v=20261104b"></script>
 </body>
 </html>

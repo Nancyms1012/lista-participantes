@@ -169,3 +169,25 @@ details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-d
 
 /* Verificación de inscripción */
 .nombre-verificado { font-size: 1.6rem; font-weight: 800; color: var(--primary-dark); margin: 8px 0; overflow-wrap: break-word; }
+
+/* Pestaña Cuadros */
+.barra-cuadros { justify-content: space-between; align-items: center; }
+.cuadros { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.cuadro { border: 1px solid var(--border); border-radius: 12px; background: #fff; overflow: hidden; break-inside: avoid; }
+.cuadro.excede { border-color: var(--error); }
+.cuadro-head { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: #fff; padding: 10px 14px; }
+.cuadro.excede .cuadro-head { background: var(--error); }
+.cuadro-titulo { font-weight: 700; font-size: 1.05rem; }
+.cuadro-conteo { font-weight: 700; background: rgba(255,255,255,.25); border-radius: 999px; padding: 2px 10px; font-size: .9rem; }
+.cuadro-lista { margin: 0; padding: 10px 14px 12px 32px; }
+.cuadro-lista li { padding: 3px 0; border-bottom: 1px dashed var(--border); }
+.cuadro-lista li:last-child { border-bottom: none; }
+.cuadro-vacio { margin: 0; padding: 14px; color: var(--muted); font-style: italic; }
+
+/* Ventana de impresión de cuadros */
+body.imprimir-cuadros { background: #fff; padding: 16px; }
+body.imprimir-cuadros h1 { color: var(--primary-dark); }
+@media print {
+  .no-print { display: none !important; }
+  .cuadros { grid-template-columns: repeat(2, 1fr); }
+}

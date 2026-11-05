@@ -99,8 +99,50 @@
     return `<select class="sel-puesto" data-puesto-de="${esc(p.cedula)}" aria-label="Puesto de ${esc(p.nombre)}">${o}</select>`;
   }
 
+  // Pestaña "Cuadros": un cuadro por puesto con los nombres de cada persona
+  function pintarCuadros() {
+    const total = asignacion ? asignacion.puestos || 0 : 0;
+    const cont = $("cuadros");
+    if (!total) {
+      $("cuadros-info").textContent = "";
+      cont.innerHTML = '<p class="ayuda">Todavía no se han creado los puestos. Creálos en la pestaña «Puestos de asistencia».</p>';
+      return;
+    }
+
+    // Agrupar nombres por puesto, ordenados alfabéticamente
+    const grupos = {};
+    for (let n = 1; n <= total; n++) grupos[n] = [];
+    datos.forEach((p) => {
+      const n = puestoDe(p);
+      if (n && grupos[n]) grupos[n].push(p.nombre);
+    });
+    Object.values(grupos).forEach((lista) => lista.sort((a, b) => a.localeCompare(b, "es")));
+
+    const cap = asignacion.tamano || 0;
+    const asignados = datos.reduce((s, p) => s + (puestoDe(p) ? 1 : 0), 0);
+    $("cuadros-info").textContent = `${total} puestos · ${asignados} de ${datos.length} personas asignadas`;
+
+    let html = "";
+    for (let n = 1; n <= total; n++) {
+      const lista = grupos[n];
+      const lleno = cap && lista.length > cap ? " excede" : "";
+      const filas = lista.length
+        ? '<ol class="cuadro-lista">' + lista.map((nombre) => `<li>${esc(nombre)}</li>`).join("") + "</ol>"
+        : '<p class="cuadro-vacio">Sin personas asignadas</p>';
+      html += `<section class="cuadro${lleno}">
+        <header class="cuadro-head">
+          <span class="cuadro-titulo">Puesto ${n}</span>
+          <span class="cuadro-conteo">${lista.length}${cap ? " / " + cap : ""}</span>
+        </header>
+        ${filas}
+      </section>`;
+    }
+    cont.innerHTML = html;
+  }
+
   function pintar() {
     pintarPuestos();
+    pintarCuadros();
     const q = $("buscar").value.trim().toLowerCase();
     const filtrados = datos.filter(
       (p) => !q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q) || p.telefono.includes(q)
@@ -288,6 +330,16 @@
     }
   });
   $("xlsx").addEventListener("click", descargarXlsx);
+  $("imprimir-cuadros").addEventListener("click", () => {
+    const cuadros = $("cuadros").innerHTML;
+    const estilos = [...document.styleSheets].map((h) => h.href).filter(Boolean).map((h) => `<link rel="stylesheet" href="${h}">`).join("");
+    const w = window.open("", "_blank");
+    if (!w) return alert("El navegador bloqueó la ventana de impresión. Permití las ventanas emergentes e intentá de nuevo.");
+    w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Puestos de asistencia</title>${estilos}</head><body class="imprimir-cuadros"><h1>Puestos de asistencia</h1><div class="cuadros">${cuadros}</div></body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 400);
+  });
   $("csv").addEventListener("click", descargarCsv);
   $("refrescar").addEventListener("click", () => cargar().catch((e) => alert(e.message)));
   $("salir").addEventListener("click", () => {
@@ -343,14 +395,15 @@
 
   // ---- Pestañas ----
   function mostrarTab(nombre) {
-    ["participantes", "puestos"].forEach((t) => {
+    ["participantes", "puestos", "cuadros"].forEach((t) => {
       $("tab-" + t).classList.toggle("oculto", t !== nombre);
       $("btn-tab-" + t).classList.toggle("activa", t === nombre);
     });
     sessionStorage.setItem("adminTab", nombre);
   }
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => mostrarTab(b.dataset.tab)));
-  mostrarTab(sessionStorage.getItem("adminTab") === "puestos" ? "puestos" : "participantes");
+  const tabGuardada = sessionStorage.getItem("adminTab");
+  mostrarTab(["puestos", "cuadros"].includes(tabGuardada) ? tabGuardada : "participantes");
 
   if (clave) cargar().catch(() => sessionStorage.removeItem("adminClave"));
 })();
