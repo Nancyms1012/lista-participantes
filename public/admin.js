@@ -15,6 +15,18 @@
 
   const puestoDe = (p) => (asignacion && asignacion.mapa && asignacion.mapa[p.cedula]) || "";
 
+  // Lugar de cada puesto (se muestra junto al título en la pestaña Cuadros).
+  // Para cambiarlos, editá este objeto: la clave es el número de puesto.
+  const LUGARES_PUESTO = {
+    1: "León XIII",
+    2: "Guadalupe",
+    3: "Zapote",
+    4: "Plaza América",
+    5: "Pavas",
+    6: "Paseo Colón / Parque Central",
+    7: "Paseo Colón / Parque Central",
+  };
+
   async function api(url, opts = {}) {
     const res = await fetch(url, { ...opts, headers: { "X-Admin-Password": clave, ...(opts.headers || {}) } });
     const data = await res.json().catch(() => ({}));
@@ -131,7 +143,10 @@
         : '<p class="cuadro-vacio">Sin personas asignadas</p>';
       html += `<section class="cuadro${lleno}">
         <header class="cuadro-head">
-          <span class="cuadro-titulo">Puesto ${n}</span>
+          <span class="cuadro-titulos">
+            <span class="cuadro-titulo">Puesto ${n}</span>
+            ${LUGARES_PUESTO[n] ? `<span class="cuadro-lugar">${esc(LUGARES_PUESTO[n])}</span>` : ""}
+          </span>
           <span class="cuadro-conteo">${lista.length}${cap ? " / " + cap : ""}</span>
         </header>
         ${filas}

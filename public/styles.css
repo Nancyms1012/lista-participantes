@@ -177,7 +177,9 @@ details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-d
 .cuadro.excede { border-color: var(--error); }
 .cuadro-head { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: #fff; padding: 10px 14px; }
 .cuadro.excede .cuadro-head { background: var(--error); }
+.cuadro-titulos { display: flex; flex-direction: column; line-height: 1.2; }
 .cuadro-titulo { font-weight: 700; font-size: 1.05rem; }
+.cuadro-lugar { font-size: .85rem; opacity: .9; }
 .cuadro-conteo { font-weight: 700; background: rgba(255,255,255,.25); border-radius: 999px; padding: 2px 10px; font-size: .9rem; }
 .cuadro-lista { margin: 0; padding: 10px 14px 12px 32px; }
 .cuadro-lista li { padding: 3px 0; border-bottom: 1px dashed var(--border); }
