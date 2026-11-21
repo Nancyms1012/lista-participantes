@@ -126,9 +126,9 @@
     for (let n = 1; n <= total; n++) grupos[n] = [];
     datos.forEach((p) => {
       const n = puestoDe(p);
-      if (n && grupos[n]) grupos[n].push(p.nombre);
+      if (n && grupos[n]) grupos[n].push({ nombre: p.nombre, talla: p.talla });
     });
-    Object.values(grupos).forEach((lista) => lista.sort((a, b) => a.localeCompare(b, "es")));
+    Object.values(grupos).forEach((lista) => lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
 
     const cap = asignacion.tamano || 0;
     const asignados = datos.reduce((s, p) => s + (puestoDe(p) ? 1 : 0), 0);
@@ -139,8 +139,17 @@
       const lista = grupos[n];
       const lleno = cap && lista.length > cap ? " excede" : "";
       const filas = lista.length
-        ? '<ol class="cuadro-lista">' + lista.map((nombre) => `<li>${esc(nombre)}</li>`).join("") + "</ol>"
+        ? '<ol class="cuadro-lista">' +
+          lista.map((x) => `<li><span class="cuadro-talla">${esc(x.talla)}</span><span class="cuadro-nombre">${esc(x.nombre)}</span></li>`).join("") +
+          "</ol>"
         : '<p class="cuadro-vacio">Sin personas asignadas</p>';
+      // Resumen de tallas del puesto (solo se ve al imprimir)
+      const porTalla = {};
+      lista.forEach((x) => (porTalla[x.talla] = (porTalla[x.talla] || 0) + 1));
+      const resumen = TALLAS.filter((t) => porTalla[t])
+        .map((t) => `${t}: <b>${porTalla[t]}</b>`)
+        .join(" · ");
+      const pie = lista.length ? `<footer class="cuadro-tallas">Camisetas: ${resumen}</footer>` : "";
       html += `<section class="cuadro${lleno}">
         <header class="cuadro-head">
           <span class="cuadro-titulos">
@@ -150,6 +159,7 @@
           <span class="cuadro-conteo">${lista.length}${cap ? " / " + cap : ""}</span>
         </header>
         ${filas}
+        ${pie}
       </section>`;
     }
     cont.innerHTML = html;

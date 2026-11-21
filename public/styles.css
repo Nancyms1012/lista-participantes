@@ -184,11 +184,17 @@ details.auto summary { cursor: pointer; font-weight: 600; color: var(--primary-d
 .cuadro-lista { margin: 0; padding: 10px 14px 12px 32px; }
 .cuadro-lista li { padding: 3px 0; border-bottom: 1px dashed var(--border); }
 .cuadro-lista li:last-child { border-bottom: none; }
+.cuadro-lista li { display: list-item; }
+.cuadro-nombre { overflow-wrap: anywhere; }
+/* Tallas: ocultas en pantalla, visibles solo en la impresión */
+.cuadro-talla, .cuadro-tallas { display: none; }
 .cuadro-vacio { margin: 0; padding: 14px; color: var(--muted); font-style: italic; }
 
 /* Ventana de impresión de cuadros */
 body.imprimir-cuadros { background: #fff; padding: 16px; }
 body.imprimir-cuadros h1 { color: var(--primary-dark); }
+body.imprimir-cuadros .cuadro-talla { display: inline-block; float: right; margin-left: 10px; font-weight: 700; min-width: 2.6em; text-align: center; border: 1px solid var(--primary-dark); border-radius: 6px; padding: 0 6px; font-size: .85rem; color: var(--primary-dark); }
+body.imprimir-cuadros .cuadro-tallas { display: block; border-top: 1px solid var(--border); background: #f2f5f4; padding: 8px 14px; font-size: .85rem; }
 @media print {
   .no-print { display: none !important; }
   .cuadros { grid-template-columns: repeat(2, 1fr); }
