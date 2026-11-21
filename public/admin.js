@@ -355,12 +355,35 @@
     }
   });
   $("xlsx").addEventListener("click", descargarXlsx);
+  // Estilos propios de la hoja impresa (incrustados: no dependen de ningún archivo externo)
+  const CSS_IMPRESION = `
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1c2b26;margin:0;padding:16px;background:#fff;line-height:1.35}
+    h1{font-size:1.4rem;color:#08523b;margin:0 0 14px}
+    .cuadros{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .cuadro{border:1px solid #cfd8d4;border-radius:10px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .cuadro-head{display:flex;justify-content:space-between;align-items:center;background:#0b6e4f;color:#fff;padding:8px 12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cuadro.excede .cuadro-head{background:#c0392b}
+    .cuadro-titulos{display:flex;flex-direction:column;line-height:1.2}
+    .cuadro-titulo{font-weight:700;font-size:1.05rem}
+    .cuadro-lugar{font-size:.85rem;opacity:.95}
+    .cuadro-conteo{font-weight:700;font-size:.9rem}
+    .cuadro-lista{margin:0;padding:8px 12px 8px 32px}
+    .cuadro-lista li{padding:3px 0;border-bottom:1px dashed #cfd8d4;font-size:.92rem}
+    .cuadro-lista li:last-child{border-bottom:none}
+    .cuadro-talla{float:right;margin-left:10px;min-width:2.6em;text-align:center;font-weight:700;font-size:.82rem;color:#08523b;border:1px solid #08523b;border-radius:6px;padding:0 6px}
+    .cuadro-tallas{border-top:1px solid #cfd8d4;background:#f2f5f4;padding:7px 12px;font-size:.85rem;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cuadro-vacio{margin:0;padding:12px;color:#5f6f69;font-style:italic}
+    @page{margin:12mm}
+  `;
   $("imprimir-cuadros").addEventListener("click", () => {
     const cuadros = $("cuadros").innerHTML;
-    const estilos = [...document.styleSheets].map((h) => h.href).filter(Boolean).map((h) => `<link rel="stylesheet" href="${h}">`).join("");
     const w = window.open("", "_blank");
     if (!w) return alert("El navegador bloqueó la ventana de impresión. Permití las ventanas emergentes e intentá de nuevo.");
-    w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Puestos de asistencia</title>${estilos}</head><body class="imprimir-cuadros"><h1>Puestos de asistencia</h1><div class="cuadros">${cuadros}</div></body></html>`);
+    w.document.write(
+      `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Puestos de asistencia</title><style>${CSS_IMPRESION}</style></head>` +
+        `<body><h1>Puestos de asistencia</h1><div class="cuadros">${cuadros}</div></body></html>`
+    );
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 400);
