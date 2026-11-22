@@ -199,3 +199,5 @@ body.imprimir-cuadros .cuadro-tallas { display: block; border-top: 1px solid var
   .no-print { display: none !important; }
   .cuadros { grid-template-columns: repeat(2, 1fr); }
 }
+
+.botones-impresion { display: flex; gap: 8px; flex-wrap: wrap; }

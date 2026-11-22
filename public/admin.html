@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Administración - Participantes</title>
-  <link rel="stylesheet" href="styles.css?v=20261105c">
+  <link rel="stylesheet" href="styles.css?v=20261105d">
 </head>
 <body>
   <div class="contenedor" id="login-box">
@@ -117,13 +117,16 @@
     <div class="card oculto" id="tab-cuadros">
       <div class="barra barra-cuadros no-print">
         <span class="ayuda" id="cuadros-info"></span>
-        <button id="imprimir-cuadros" class="secundario">🖨️ Imprimir / PDF</button>
+        <span class="botones-impresion">
+          <button id="imprimir-cuadros" class="secundario">🖨️ Imprimir / PDF</button>
+          <button id="imprimir-hojas" class="secundario">📄 Un puesto por hoja</button>
+        </span>
       </div>
       <div id="cuadros" class="cuadros"></div>
     </div>
   </div>
 
-  <script src="xlsx.js?v=20261105c"></script>
-  <script src="admin.js?v=20261105c"></script>
+  <script src="xlsx.js?v=20261105d"></script>
+  <script src="admin.js?v=20261105d"></script>
 </body>
 </html>

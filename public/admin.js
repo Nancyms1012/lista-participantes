@@ -377,18 +377,38 @@
     @page{margin:12mm}
   `;
 
-  $("imprimir-cuadros").addEventListener("click", () => {
+  // Estilos extra para "un puesto por hoja": una columna, letra más grande y salto de página entre puestos
+  const CSS_UNA_POR_HOJA = `
+    body{padding:0}
+    h1{display:none}
+    .cuadros{display:block}
+    .cuadro{break-after:page;page-break-after:always;margin:0;border-width:2px}
+    .cuadro:last-child{break-after:auto;page-break-after:auto}
+    .cuadro-head{padding:16px 22px}
+    .cuadro-titulo{font-size:2rem}
+    .cuadro-lugar{font-size:1.3rem}
+    .cuadro-conteo{font-size:1.3rem}
+    .cuadro-lista{padding:14px 22px 14px 48px}
+    .cuadro-lista li{font-size:1.25rem;padding:7px 0}
+    .cuadro-talla{font-size:1.05rem;min-width:3.2em;padding:1px 8px}
+    .cuadro-tallas{font-size:1.15rem;padding:12px 22px}
+    .cuadro-vacio{font-size:1.2rem;padding:20px}
+    @page{margin:14mm}
+  `;
+  function abrirImpresion(css) {
     const cuadros = $("cuadros").innerHTML;
     const w = window.open("", "_blank");
     if (!w) return alert("El navegador bloqueó la ventana de impresión. Permití las ventanas emergentes e intentá de nuevo.");
     w.document.write(
-      `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Puestos de asistencia</title><style>${CSS_IMPRESION}</style></head>` +
+      `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Puestos de asistencia</title><style>${CSS_IMPRESION}${css}</style></head>` +
         `<body><h1>Puestos de asistencia</h1><div class="cuadros">${cuadros}</div></body></html>`
     );
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 400);
-  });
+  }
+  $("imprimir-cuadros").addEventListener("click", () => abrirImpresion(""));
+  $("imprimir-hojas").addEventListener("click", () => abrirImpresion(CSS_UNA_POR_HOJA));
   $("csv").addEventListener("click", descargarCsv);
   $("refrescar").addEventListener("click", () => cargar().catch((e) => alert(e.message)));
   $("salir").addEventListener("click", () => {
