@@ -358,24 +358,25 @@
   // Estilos propios de la hoja impresa (incrustados: no dependen de ningún archivo externo)
   const CSS_IMPRESION = `
     *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1c2b26;margin:0;padding:16px;background:#fff;line-height:1.35}
-    h1{font-size:1.4rem;color:#08523b;margin:0 0 14px}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#0b3d91;margin:0;padding:16px;background:#fff;line-height:1.35}
+    h1{font-size:1.4rem;color:#0b3d91;margin:0 0 14px}
     .cuadros{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    .cuadro{border:1px solid #cfd8d4;border-radius:10px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
-    .cuadro-head{display:flex;justify-content:space-between;align-items:center;background:#0b6e4f;color:#fff;padding:8px 12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .cuadro.excede .cuadro-head{background:#c0392b}
+    .cuadro{border:1.5px solid #0b3d91;border-radius:10px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .cuadro-head{display:flex;justify-content:space-between;align-items:center;background:#e3ecfb;color:#0b3d91;border-bottom:1.5px solid #0b3d91;padding:8px 12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cuadro.excede .cuadro-head{background:#e3ecfb}
     .cuadro-titulos{display:flex;flex-direction:column;line-height:1.2}
     .cuadro-titulo{font-weight:700;font-size:1.05rem}
-    .cuadro-lugar{font-size:.85rem;opacity:.95}
+    .cuadro-lugar{font-size:.85rem}
     .cuadro-conteo{font-weight:700;font-size:.9rem}
     .cuadro-lista{margin:0;padding:8px 12px 8px 32px}
-    .cuadro-lista li{padding:3px 0;border-bottom:1px dashed #cfd8d4;font-size:.92rem}
+    .cuadro-lista li{padding:3px 0;border-bottom:1px dashed #7f9bd1;font-size:.92rem}
     .cuadro-lista li:last-child{border-bottom:none}
-    .cuadro-talla{float:right;margin-left:10px;min-width:2.6em;text-align:center;font-weight:700;font-size:.82rem;color:#08523b;border:1px solid #08523b;border-radius:6px;padding:0 6px}
-    .cuadro-tallas{border-top:1px solid #cfd8d4;background:#f2f5f4;padding:7px 12px;font-size:.85rem;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .cuadro-vacio{margin:0;padding:12px;color:#5f6f69;font-style:italic}
+    .cuadro-talla{float:right;margin-left:10px;min-width:2.6em;text-align:center;font-weight:700;font-size:.82rem;color:#0b3d91;border:1px solid #0b3d91;border-radius:6px;padding:0 6px}
+    .cuadro-tallas{border-top:1.5px solid #0b3d91;background:#f3f7fe;padding:7px 12px;font-size:.85rem;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cuadro-vacio{margin:0;padding:12px;font-style:italic}
     @page{margin:12mm}
   `;
+
   $("imprimir-cuadros").addEventListener("click", () => {
     const cuadros = $("cuadros").innerHTML;
     const w = window.open("", "_blank");
