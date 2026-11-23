@@ -85,3 +85,59 @@ export function validarParticipante(body) {
   }
   return { datos: { cedula, nombre, talla, telefono } };
 }
+
+// ---------- Datos de pago (SINPE Móvil / cuenta IBAN) ----------
+
+// IBAN válido: CR + 20 dígitos, con dígito verificador mod-97 correcto
+export function ibanValido(iban) {
+  if (!/^CR\d{20}$/.test(iban)) return false;
+  const movido = iban.slice(4) + iban.slice(0, 4);
+  const numerico = movido.replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
+  let resto = 0;
+  for (const d of numerico) resto = (resto * 10 + Number(d)) % 97;
+  return resto === 1;
+}
+
+// Valida los datos de pago. Devuelve { error } o { datos: { nombre, metodo, valor } }
+export function validarPago(body) {
+  const nombre = String(body.nombre ?? "").replace(/\s+/g, " ").trim();
+  const metodo = String(body.metodo ?? "").trim();
+
+  if (nombre.length < 5 || nombre.length > 100) return { error: "Escribí el nombre completo." };
+  if (!REGEX_NOMBRE.test(nombre)) return { error: "El nombre debe contener solo letras (sin números ni símbolos)." };
+
+  if (metodo === "sinpe") {
+    let tel = String(body.valor ?? "").replace(/[\s-]/g, "").replace(/^\+?506/, "");
+    if (!/^\d{8}$/.test(tel)) return { error: "El número de SINPE Móvil debe tener 8 dígitos." };
+    return { datos: { nombre, metodo, valor: tel } };
+  }
+  if (metodo === "iban") {
+    const iban = String(body.valor ?? "").replace(/[\s-]/g, "").toUpperCase();
+    if (!/^CR\d{20}$/.test(iban)) return { error: "El IBAN debe empezar con CR seguido de 20 números (22 caracteres en total)." };
+    if (!ibanValido(iban)) return { error: "Ese número de IBAN no es válido. Revisá que no tenga un dígito equivocado." };
+    return { datos: { nombre, metodo, valor: iban } };
+  }
+  return { error: "Elegí cómo querés recibir el pago: SINPE Móvil o cuenta IBAN." };
+}
+
+// Lee todos los datos de pago, ordenados por fecha
+export async function listarPagos(env) {
+  const lista = [];
+  let cursor;
+  do {
+    const res = await env.PARTICIPANTES.list({ prefix: "pago:", cursor });
+    for (const k of res.keys) {
+      if (k.metadata) lista.push(k.metadata);
+      else {
+        const v = await env.PARTICIPANTES.get(k.name, "json");
+        if (v) lista.push(v);
+      }
+    }
+    cursor = res.list_complete ? undefined : res.cursor;
+  } while (cursor);
+  lista.sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
+  return lista;
+}
+
+// Compara nombres sin importar mayúsculas ni tildes
+export const normalizarNombre = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();

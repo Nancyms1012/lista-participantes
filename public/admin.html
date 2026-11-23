@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Administración - Participantes</title>
-  <link rel="stylesheet" href="styles.css?v=20261105e">
+  <link rel="stylesheet" href="styles.css?v=20261105f">
 </head>
 <body>
   <div class="contenedor" id="login-box">
@@ -33,6 +33,7 @@
       <button class="tab activa" id="btn-tab-participantes" data-tab="participantes" role="tab">👥 Participantes</button>
       <button class="tab" id="btn-tab-puestos" data-tab="puestos" role="tab">📍 Puestos de asistencia</button>
       <button class="tab" id="btn-tab-cuadros" data-tab="cuadros" role="tab">🗂️ Cuadros</button>
+      <button class="tab" id="btn-tab-pagos" data-tab="pagos" role="tab">💳 Pagos</button>
       <span class="tabs-der">
         <button id="refrescar" class="secundario">↻ Actualizar</button>
         <button id="salir" class="secundario">Salir</button>
@@ -156,9 +157,33 @@
       </div>
       <div id="cuadros" class="cuadros"></div>
     </div>
+
+    <!-- ===== Pestaña: Pagos (SINPE / IBAN) ===== -->
+    <div class="card oculto" id="tab-pagos">
+      <p class="ayuda">Datos que las personas envían desde el enlace público <b><span id="pagos-enlace">/pago.html</span></b> para recibir su pago por SINPE Móvil o depósito a cuenta IBAN.</p>
+      <div class="resumen" id="pagos-resumen"></div>
+      <div class="barra">
+        <input id="buscar-pagos" type="search" placeholder="Buscar por nombre, teléfono o IBAN…">
+        <select id="filtro-metodo" class="filtro">
+          <option value="">Todos</option>
+          <option value="sinpe">SINPE Móvil</option>
+          <option value="iban">IBAN</option>
+        </select>
+        <button id="copiar-enlace" class="secundario">🔗 Copiar enlace</button>
+        <button id="xlsx-pagos">⬇ Excel (.xlsx)</button>
+      </div>
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>Método</th><th>Teléfono / IBAN</th><th>Fecha</th><th></th></tr>
+          </thead>
+          <tbody id="cuerpo-pagos"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <script src="xlsx.js?v=20261105e"></script>
-  <script src="admin.js?v=20261105e"></script>
+  <script src="xlsx.js?v=20261105f"></script>
+  <script src="admin.js?v=20261105f"></script>
 </body>
 </html>

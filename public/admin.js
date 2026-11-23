@@ -3,6 +3,7 @@
   let clave = sessionStorage.getItem("adminClave") || "";
   let datos = [];
   let asignacion = null;
+  let pagos = [];
   let editando = null; // cédula de la fila que se está editando
   const TALLAS = ["S", "M", "L", "XL", "2XL"];
   const REGEX_NOMBRE = /^\p{L}+(?:[ '’-]+\p{L}+)*$/u;
@@ -42,7 +43,60 @@
     $("login-box").classList.add("oculto");
     $("panel").classList.remove("oculto");
     pintar();
+    cargarPagos();
   }
+
+  // ---- Pestaña Pagos ----
+  async function cargarPagos() {
+    try {
+      pagos = (await api("/api/pagos")).pagos || [];
+    } catch {
+      pagos = [];
+    }
+    pintarPagos();
+  }
+  const metodoTexto = (m) => (m === "sinpe" ? "SINPE Móvil" : "IBAN");
+  function valorTexto(p) {
+    // IBAN en bloques de 4 para leerlo mejor
+    return p.metodo === "iban" ? p.valor.replace(/(.{4})/g, "$1 ").trim() : p.valor;
+  }
+  function pintarPagos() {
+    $("pagos-enlace").textContent = location.origin + "/pago.html";
+    const q = $("buscar-pagos").value.trim().toLowerCase().replace(/\s/g, "");
+    const fm = $("filtro-metodo").value;
+    const filas = pagos.filter(
+      (p) =>
+        (!fm || p.metodo === fm) &&
+        (!q || p.nombre.toLowerCase().replace(/\s/g, "").includes(q) || p.valor.toLowerCase().includes(q))
+    );
+    const nS = pagos.filter((p) => p.metodo === "sinpe").length;
+    const nI = pagos.filter((p) => p.metodo === "iban").length;
+    $("pagos-resumen").innerHTML =
+      `<span class="chip">Total: <b>${pagos.length}</b></span><span class="chip">SINPE Móvil: <b>${nS}</b></span><span class="chip">IBAN: <b>${nI}</b></span>`;
+    $("cuerpo-pagos").innerHTML = filas.length
+      ? filas
+          .map(
+            (p, i) => `<tr>
+        <td data-label="#">${i + 1}</td>
+        <td data-label="Nombre">${esc(p.nombre)}</td>
+        <td data-label="Método"><span class="badge-metodo ${p.metodo}">${metodoTexto(p.metodo)}</span></td>
+        <td data-label="Teléfono / IBAN" class="nw">${esc(valorTexto(p))}</td>
+        <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
+        <td class="acciones"><button class="peligro" data-del-pago="${esc(p.id)}">Eliminar</button></td>
+      </tr>`
+          )
+          .join("")
+      : '<tr><td colspan="6">' + (pagos.length ? "Sin resultados." : "Todavía no hay datos de pago enviados.") + "</td></tr>";
+  }
+  function descargarPagosXlsx() {
+    const filas = [
+      ["Nombre", "Método", "Teléfono / IBAN", "Fecha"],
+      ...pagos.map((p) => [p.nombre, metodoTexto(p.metodo), p.valor, fechaExport(p.fecha)]),
+    ];
+    const bytes = window.crearXlsx({ hoja: "Pagos", anchos: [36, 14, 30, 20], filas });
+    descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `pagos-${hoy()}.xlsx`);
+  }
+
 
   // Pestaña "Puestos": configuración, resumen y tabla de asignación manual
   function pintarPuestos() {
@@ -340,6 +394,35 @@
       $("ag-guardar").disabled = false;
     }
   });
+  $("buscar-pagos").addEventListener("input", pintarPagos);
+  $("filtro-metodo").addEventListener("change", pintarPagos);
+  $("xlsx-pagos").addEventListener("click", () => {
+    try {
+      descargarPagosXlsx();
+    } catch (err) {
+      alert("No se pudo generar el Excel: " + err.message);
+    }
+  });
+  $("copiar-enlace").addEventListener("click", async () => {
+    const url = location.origin + "/pago.html";
+    try {
+      await navigator.clipboard.writeText(url);
+      alert("Enlace copiado:\n" + url);
+    } catch {
+      prompt("Copiá este enlace:", url);
+    }
+  });
+  $("cuerpo-pagos").addEventListener("click", async (e) => {
+    const id = e.target.dataset && e.target.dataset.delPago;
+    if (!id) return;
+    if (!confirm("¿Eliminar este dato de pago? Esta acción no se puede deshacer.")) return;
+    try {
+      await api("/api/pagos?id=" + encodeURIComponent(id), { method: "DELETE" });
+      await cargarPagos();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
   $("buscar").addEventListener("input", pintar);
   $("buscar-puestos").addEventListener("input", pintar);
   $("filtro-puesto").addEventListener("change", pintar);
@@ -515,7 +598,7 @@
 
   // ---- Pestañas ----
   function mostrarTab(nombre) {
-    ["participantes", "puestos", "cuadros"].forEach((t) => {
+    ["participantes", "puestos", "cuadros", "pagos"].forEach((t) => {
       $("tab-" + t).classList.toggle("oculto", t !== nombre);
       $("btn-tab-" + t).classList.toggle("activa", t === nombre);
     });
@@ -523,7 +606,7 @@
   }
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => mostrarTab(b.dataset.tab)));
   const tabGuardada = sessionStorage.getItem("adminTab");
-  mostrarTab(["puestos", "cuadros"].includes(tabGuardada) ? tabGuardada : "participantes");
+  mostrarTab(["puestos", "cuadros", "pagos"].includes(tabGuardada) ? tabGuardada : "participantes");
 
   if (clave) cargar().catch(() => sessionStorage.removeItem("adminClave"));
 })();

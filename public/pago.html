@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Datos para recibir tu pago</title>
+  <link rel="stylesheet" href="styles.css?v=20261105f">
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Datos para recibir tu pago</h1>
+    <p class="sub">Escribí tu nombre y elegí si querés recibir el pago por SINPE Móvil o por depósito a tu cuenta IBAN.</p>
+
+    <div class="card">
+      <form id="form" novalidate>
+        <label for="nombre">Nombre completo</label>
+        <input id="nombre" type="text" maxlength="100" autocomplete="name" placeholder="Nombre y apellidos" required>
+
+        <label for="metodo">¿Cómo querés recibir el pago?</label>
+        <select id="metodo" required>
+          <option value="">Seleccioná una opción…</option>
+          <option value="sinpe">SINPE Móvil</option>
+          <option value="iban">Depósito a cuenta IBAN</option>
+        </select>
+
+        <div id="bloque-sinpe" class="oculto">
+          <label for="telefono">Número de teléfono (SINPE Móvil)</label>
+          <input id="telefono" type="tel" inputmode="numeric" maxlength="16" autocomplete="tel" placeholder="Ej: 88887777">
+        </div>
+
+        <div id="bloque-iban" class="oculto">
+          <label for="iban">Número de cuenta IBAN</label>
+          <input id="iban" type="text" maxlength="40" autocomplete="off" spellcheck="false" placeholder="Ej: CR15015105410010008900">
+          <p class="ayuda" style="margin:6px 0 0">Empieza con <b>CR</b> y tiene 22 caracteres. Lo encontrás en tu app del banco.</p>
+        </div>
+
+        <!-- Campo trampa para bots: no lo llenes -->
+        <div class="trampa" aria-hidden="true">
+          <label for="web">No llenar</label>
+          <input id="web" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div id="mensaje" class="mensaje oculto" role="alert"></div>
+        <button type="submit" id="enviar">Enviar mis datos</button>
+      </form>
+
+      <div id="exito" class="exito oculto">
+        <div class="check">✅</div>
+        <h2>¡Datos recibidos!</h2>
+        <p>Gracias. Ya tenemos tus datos para el pago.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="pago.js?v=20261105f"></script>
+</body>
+</html>
