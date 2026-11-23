@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Administración - Participantes</title>
-  <link rel="stylesheet" href="styles.css?v=20261105f">
+  <link rel="stylesheet" href="styles.css?v=20261105g">
 </head>
 <body>
   <div class="contenedor" id="login-box">
@@ -43,9 +43,16 @@
     <!-- ===== Pestaña: Participantes ===== -->
     <div class="card" id="tab-participantes">
       <div class="resumen" id="resumen"></div>
+      <div class="resumen" id="resumen-pagos-part"></div>
 
       <div class="barra">
         <input id="buscar" type="search" placeholder="Buscar por cédula, nombre o teléfono…">
+        <select id="filtro-pago" class="filtro" title="Filtrar por envío de datos de pago">
+          <option value="">Pago: todos</option>
+          <option value="si">✅ Con pago enviado</option>
+          <option value="posible">🟡 Posible coincidencia</option>
+          <option value="no">Sin enviar</option>
+        </select>
         <button id="agregar">➕ Agregar participante</button>
         <button id="xlsx" class="secundario">⬇ Excel (.xlsx)</button>
         <button id="csv" class="secundario">⬇ CSV</button>
@@ -87,7 +94,7 @@
           <thead>
             <tr>
               <th>#</th><th>Cédula</th><th>Nombre completo</th><th>Teléfono</th>
-              <th>Talla</th><th>Puesto</th><th>Fecha</th><th></th>
+              <th>Talla</th><th>Puesto</th><th>Pago</th><th>Fecha</th><th></th>
             </tr>
           </thead>
           <tbody id="cuerpo"></tbody>
@@ -175,7 +182,7 @@
       <div class="tabla-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>Nombre</th><th>Método</th><th>Teléfono / IBAN</th><th>Fecha</th><th></th></tr>
+            <tr><th>#</th><th>Nombre</th><th>Método</th><th>Teléfono / IBAN</th><th>Inscrito</th><th>Fecha</th><th></th></tr>
           </thead>
           <tbody id="cuerpo-pagos"></tbody>
         </table>
@@ -183,7 +190,8 @@
     </div>
   </div>
 
-  <script src="xlsx.js?v=20261105f"></script>
-  <script src="admin.js?v=20261105f"></script>
+  <script src="cruce.js?v=20261105g"></script>
+  <script src="xlsx.js?v=20261105g"></script>
+  <script src="admin.js?v=20261105g"></script>
 </body>
 </html>

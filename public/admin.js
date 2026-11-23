@@ -4,6 +4,7 @@
   let datos = [];
   let asignacion = null;
   let pagos = [];
+  let cruce = { porCedula: {}, porPago: {} }; // resultado del cruce participantes <-> pagos
   let editando = null; // cédula de la fila que se está editando
   const TALLAS = ["S", "M", "L", "XL", "2XL"];
   const REGEX_NOMBRE = /^\p{L}+(?:[ '’-]+\p{L}+)*$/u;
@@ -39,6 +40,7 @@
     const data = await api("/api/participantes");
     datos = data.participantes;
     asignacion = data.asignacion || null;
+    recalcularCruce();
     if (editando && !datos.some((p) => p.cedula === editando)) editando = null;
     $("login-box").classList.add("oculto");
     $("panel").classList.remove("oculto");
@@ -53,8 +55,33 @@
     } catch {
       pagos = [];
     }
+    recalcularCruce();
+    pintar();
     pintarPagos();
   }
+
+  // ---- Cruce participantes <-> pagos (por nombre) ----
+  function recalcularCruce() {
+    cruce = window.cruzarPagos ? window.cruzarPagos(datos, pagos) : { porCedula: {}, porPago: {} };
+  }
+  const estadoPago = (p) => (cruce.porCedula[p.cedula] ? cruce.porCedula[p.cedula].estado : "no");
+  const metodosDe = (lista) => [...new Set(lista.map((x) => metodoTexto(x.metodo)))].join(" + ");
+  function celdaPago(p) {
+    const c = cruce.porCedula[p.cedula];
+    if (!c) return '<span class="pago-no">Sin enviar</span>';
+    if (c.estado === "si") return `<span class="pago-si">✅ ${esc(metodosDe(c.pagos))}</span>`;
+    const quien = c.pagos.map((x) => x.nombre).join(", ");
+    return `<span class="pago-posible" title="Datos enviados por: ${esc(quien)}. Revisá si es la misma persona.">🟡 Posible: ${esc(quien)}</span>`;
+  }
+  function celdaInscrito(pg) {
+    const c = cruce.porPago[pg.id];
+    if (!c) return '<span class="pago-no" title="Ningún inscrito tiene este nombre. Puede que escribió otro nombre o aún no se registra.">⚠ No aparece</span>';
+    const nombres = c.participantes.map((x) => x.nombre).join(", ");
+    return c.estado === "si"
+      ? `<span class="pago-si">✅ ${esc(nombres)}</span>`
+      : `<span class="pago-posible" title="Coincidencia parcial: revisá si es la misma persona.">🟡 Posible: ${esc(nombres)}</span>`;
+  }
+
   const metodoTexto = (m) => (m === "sinpe" ? "SINPE Móvil" : "IBAN");
   function valorTexto(p) {
     // IBAN en bloques de 4 para leerlo mejor
@@ -72,7 +99,10 @@
     const nS = pagos.filter((p) => p.metodo === "sinpe").length;
     const nI = pagos.filter((p) => p.metodo === "iban").length;
     $("pagos-resumen").innerHTML =
-      `<span class="chip">Total: <b>${pagos.length}</b></span><span class="chip">SINPE Móvil: <b>${nS}</b></span><span class="chip">IBAN: <b>${nI}</b></span>`;
+      `<span class="chip">Total: <b>${pagos.length}</b></span><span class="chip">SINPE Móvil: <b>${nS}</b></span><span class="chip">IBAN: <b>${nI}</b></span>` +
+      (pagos.some((p) => !cruce.porPago[p.id])
+        ? `<span class="chip chip-alerta">⚠ Sin inscripción: <b>${pagos.filter((p) => !cruce.porPago[p.id]).length}</b></span>`
+        : "");
     $("cuerpo-pagos").innerHTML = filas.length
       ? filas
           .map(
@@ -81,19 +111,23 @@
         <td data-label="Nombre">${esc(p.nombre)}</td>
         <td data-label="Método"><span class="badge-metodo ${p.metodo}">${metodoTexto(p.metodo)}</span></td>
         <td data-label="Teléfono / IBAN" class="nw">${esc(valorTexto(p))}</td>
+        <td data-label="Inscrito">${celdaInscrito(p)}</td>
         <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
         <td class="acciones"><button class="peligro" data-del-pago="${esc(p.id)}">Eliminar</button></td>
       </tr>`
           )
           .join("")
-      : '<tr><td colspan="6">' + (pagos.length ? "Sin resultados." : "Todavía no hay datos de pago enviados.") + "</td></tr>";
+      : '<tr><td colspan="7">' + (pagos.length ? "Sin resultados." : "Todavía no hay datos de pago enviados.") + "</td></tr>";
   }
   function descargarPagosXlsx() {
     const filas = [
-      ["Nombre", "Método", "Teléfono / IBAN", "Fecha"],
-      ...pagos.map((p) => [p.nombre, metodoTexto(p.metodo), p.valor, fechaExport(p.fecha)]),
+      ["Nombre", "Método", "Teléfono / IBAN", "Inscrito", "Fecha"],
+      ...pagos.map((p) => {
+        const c = cruce.porPago[p.id];
+        return [p.nombre, metodoTexto(p.metodo), p.valor, c ? (c.estado === "si" ? "Sí" : "Posible") : "No", fechaExport(p.fecha)];
+      }),
     ];
-    const bytes = window.crearXlsx({ hoja: "Pagos", anchos: [36, 14, 30, 20], filas });
+    const bytes = window.crearXlsx({ hoja: "Pagos", anchos: [36, 14, 30, 10, 20], filas });
     descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `pagos-${hoy()}.xlsx`);
   }
 
@@ -223,8 +257,11 @@
     pintarPuestos();
     pintarCuadros();
     const q = $("buscar").value.trim().toLowerCase();
+    const fpago = $("filtro-pago").value;
     const filtrados = datos.filter(
-      (p) => !q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q) || p.telefono.includes(q)
+      (p) =>
+        (!q || p.cedula.includes(q) || p.nombre.toLowerCase().includes(q) || p.telefono.includes(q)) &&
+        (!fpago || estadoPago(p) === fpago)
     );
 
     $("total-num").textContent = datos.length;
@@ -242,6 +279,13 @@
       if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
       return a.localeCompare(b);
     });
+    const nSi = datos.filter((p) => estadoPago(p) === "si").length;
+    const nPos = datos.filter((p) => estadoPago(p) === "posible").length;
+    $("resumen-pagos-part").innerHTML = pagos.length || datos.length
+      ? `<span class="chip chip-pago">✅ Con pago enviado: <b>${nSi}</b></span>` +
+        (nPos ? `<span class="chip chip-pago">🟡 Posibles: <b>${nPos}</b></span>` : "") +
+        `<span class="chip chip-pago">Sin enviar: <b>${datos.length - nSi - nPos}</b></span>`
+      : "";
     $("resumen").innerHTML = claves.map((k) => `<span class="chip">${esc(k)}: <b>${cuenta[k]}</b></span>`).join("");
 
     $("cuerpo").innerHTML = filtrados
@@ -255,6 +299,7 @@
             <td data-label="Teléfono"><input class="ed" id="ed-telefono" inputmode="numeric" value="${esc(p.telefono)}"></td>
             <td data-label="Talla"><select class="ed" id="ed-talla">${opts}</select></td>
             <td data-label="Puesto">${esc(puestoDe(p) || "—")}</td>
+            <td data-label="Pago">${celdaPago(p)}</td>
             <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
             <td class="acciones">
               <button data-guardar="${esc(p.cedula)}">Guardar</button>
@@ -270,6 +315,7 @@
           <td data-label="Teléfono" class="nw">${esc(p.telefono)}</td>
           <td data-label="Talla">${esc(p.talla)}</td>
           <td data-label="Puesto">${esc(puestoDe(p) || "—")}</td>
+          <td data-label="Pago">${celdaPago(p)}</td>
           <td data-label="Fecha">${esc(fechaTexto(p.fecha))}</td>
           <td class="acciones">
             <button class="secundario" data-edit="${esc(p.cedula)}">Editar</button>
@@ -281,7 +327,7 @@
   }
 
   // ---- Exportación ----
-  const ENCABEZADO = ["Cédula", "Nombre completo", "Teléfono", "Talla", "Puesto", "Fecha de registro"];
+  const ENCABEZADO = ["Cédula", "Nombre completo", "Teléfono", "Talla", "Puesto", "Pago enviado", "Método de pago", "Fecha de registro"];
 
   // Fecha sin coma para que no rompa las columnas del CSV: "3/11/26 4:01 a. m."
   const fechaExport = (iso) => fechaTexto(iso).replace(", ", " ");
@@ -291,7 +337,16 @@
     const base = asignacion && asignacion.puestos
       ? [...datos].sort((a, b) => (puestoDe(a) || 9999) - (puestoDe(b) || 9999))
       : datos;
-    return base.map((p) => [p.cedula, p.nombre, p.telefono, p.talla, puestoDe(p) || "", fechaExport(p.fecha)]);
+    return base.map((p) => {
+      const est = estadoPago(p);
+      const c = cruce.porCedula[p.cedula];
+      return [
+        p.cedula, p.nombre, p.telefono, p.talla, puestoDe(p) || "",
+        est === "si" ? "Sí" : est === "posible" ? "Posible" : "No",
+        c ? metodosDe(c.pagos) : "",
+        fechaExport(p.fecha),
+      ];
+    });
   }
 
   function descargarArchivo(contenido, tipo, nombre) {
@@ -312,8 +367,8 @@
       if (typeof window.crearXlsx !== "function") {
         return alert("No se cargó el generador de Excel. Recargá la página con Ctrl+Shift+R e intentá de nuevo.");
       }
-      const filas = [ENCABEZADO, ...filasExportar().map((f) => [f[0], f[1], f[2], f[3], f[4] === "" ? "" : Number(f[4]), f[5]])];
-      const bytes = window.crearXlsx({ hoja: "Participantes", anchos: [14, 36, 14, 8, 8, 20], filas });
+      const filas = [ENCABEZADO, ...filasExportar().map((f) => [f[0], f[1], f[2], f[3], f[4] === "" ? "" : Number(f[4]), f[5], f[6], f[7]])];
+      const bytes = window.crearXlsx({ hoja: "Participantes", anchos: [14, 36, 14, 8, 8, 14, 16, 20], filas });
       descargarArchivo(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `participantes-${hoy()}.xlsx`);
     } catch (err) {
       alert("No se pudo generar el Excel: " + err.message + "\nProbá con el botón CSV.");
@@ -424,6 +479,7 @@
     }
   });
   $("buscar").addEventListener("input", pintar);
+  $("filtro-pago").addEventListener("change", pintar);
   $("buscar-puestos").addEventListener("input", pintar);
   $("filtro-puesto").addEventListener("change", pintar);
   $("guardar-puestos").addEventListener("click", async () => {
