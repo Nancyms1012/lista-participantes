@@ -289,6 +289,57 @@
     }
   });
 
+  // ---- Agregar participante (admin) ----
+  const fa = $("form-agregar");
+  const agMsg = (texto, tipo) => {
+    $("ag-msg").textContent = texto;
+    $("ag-msg").className = "mensaje " + tipo;
+  };
+  const agLimpiar = () => {
+    fa.reset();
+    $("ag-msg").className = "mensaje oculto";
+  };
+  $("agregar").addEventListener("click", () => {
+    fa.classList.toggle("oculto");
+    if (!fa.classList.contains("oculto")) $("ag-cedula").focus();
+  });
+  $("ag-cancelar").addEventListener("click", () => {
+    agLimpiar();
+    fa.classList.add("oculto");
+  });
+  $("ag-cedula").addEventListener("input", (e) => (e.target.value = e.target.value.replace(/\D/g, "")));
+  $("ag-telefono").addEventListener("input", (e) => (e.target.value = e.target.value.replace(/[^\d+]/g, "")));
+  $("ag-nombre").addEventListener("input", (e) => (e.target.value = e.target.value.replace(/[^\p{L}\s'’-]/gu, "")));
+  fa.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nuevo = {
+      cedula: $("ag-cedula").value.trim(),
+      nombre: $("ag-nombre").value.replace(/\s+/g, " ").trim(),
+      telefono: $("ag-telefono").value.trim(),
+      talla: $("ag-talla").value,
+    };
+    if (!/^\d{7,15}$/.test(nuevo.cedula)) return agMsg("La cédula debe contener solo números.", "error");
+    if (nuevo.nombre.length < 5 || !REGEX_NOMBRE.test(nuevo.nombre)) return agMsg("El nombre debe contener solo letras.", "error");
+    if (!/^\+?\d{8,15}$/.test(nuevo.telefono.replace(/[\s-]/g, ""))) return agMsg("El teléfono debe tener solo números.", "error");
+    if (!nuevo.talla) return agMsg("Elegí la talla de camiseta.", "error");
+
+    $("ag-guardar").disabled = true;
+    try {
+      await api("/api/participantes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevo),
+      });
+      await cargar();
+      agLimpiar();
+      agMsg(`✅ ${nuevo.nombre} fue agregado/a. Podés agregar otro.`, "ok");
+      $("ag-cedula").focus();
+    } catch (err) {
+      agMsg(err.message, "error");
+    } finally {
+      $("ag-guardar").disabled = false;
+    }
+  });
   $("buscar").addEventListener("input", pintar);
   $("buscar-puestos").addEventListener("input", pintar);
   $("filtro-puesto").addEventListener("change", pintar);

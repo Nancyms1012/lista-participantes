@@ -201,3 +201,13 @@ body.imprimir-cuadros .cuadro-tallas { display: block; border-top: 1px solid var
 }
 
 .botones-impresion { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Agregar participante (admin) */
+.agregar { border: 1px solid var(--border); border-radius: 10px; background: #fafcfb; padding: 14px; margin-bottom: 16px; }
+.agregar h2 { margin: 0 0 10px; font-size: 1.1rem; color: var(--primary-dark); }
+.agregar-campos { display: flex; flex-wrap: wrap; gap: 12px; }
+.agregar-campos .campo { flex: 1 1 160px; min-width: 140px; }
+.agregar-campos .campo-ancho { flex: 2 1 260px; }
+.agregar-campos label { margin: 0 0 4px; font-size: .9rem; }
+.agregar-botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.agregar-botones button { width: auto; margin: 0; }

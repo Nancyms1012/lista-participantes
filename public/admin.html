@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Administración - Participantes</title>
-  <link rel="stylesheet" href="styles.css?v=20261105d">
+  <link rel="stylesheet" href="styles.css?v=20261105e">
 </head>
 <body>
   <div class="contenedor" id="login-box">
@@ -45,9 +45,41 @@
 
       <div class="barra">
         <input id="buscar" type="search" placeholder="Buscar por cédula, nombre o teléfono…">
-        <button id="xlsx">⬇ Descargar Excel (.xlsx)</button>
+        <button id="agregar">➕ Agregar participante</button>
+        <button id="xlsx" class="secundario">⬇ Excel (.xlsx)</button>
         <button id="csv" class="secundario">⬇ CSV</button>
       </div>
+
+
+      <form id="form-agregar" class="agregar oculto" novalidate>
+        <h2>Agregar participante</h2>
+        <div class="agregar-campos">
+          <div class="campo">
+            <label for="ag-cedula">Cédula</label>
+            <input id="ag-cedula" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Solo números">
+          </div>
+          <div class="campo campo-ancho">
+            <label for="ag-nombre">Nombre completo</label>
+            <input id="ag-nombre" maxlength="100" autocomplete="off" placeholder="Nombre y apellidos">
+          </div>
+          <div class="campo">
+            <label for="ag-telefono">Teléfono</label>
+            <input id="ag-telefono" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ej: 88887777">
+          </div>
+          <div class="campo">
+            <label for="ag-talla">Talla</label>
+            <select id="ag-talla">
+              <option value="">Elegí…</option>
+              <option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option>
+            </select>
+          </div>
+        </div>
+        <div id="ag-msg" class="mensaje oculto" role="alert"></div>
+        <div class="agregar-botones">
+          <button type="submit" id="ag-guardar">Guardar participante</button>
+          <button type="button" id="ag-cancelar" class="secundario">Cerrar</button>
+        </div>
+      </form>
 
       <div class="tabla-wrap">
         <table>
@@ -126,7 +158,7 @@
     </div>
   </div>
 
-  <script src="xlsx.js?v=20261105d"></script>
-  <script src="admin.js?v=20261105d"></script>
+  <script src="xlsx.js?v=20261105e"></script>
+  <script src="admin.js?v=20261105e"></script>
 </body>
 </html>

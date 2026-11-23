@@ -68,3 +68,33 @@ export async function onRequestPut({ request, env }) {
 
   return json({ ok: true, registro });
 }
+
+// POST /api/participantes  { cedula, nombre, telefono, talla }
+// Agrega un participante desde el admin (solo admin). Usa las mismas validaciones que el registro público.
+export async function onRequestPost({ request, env }) {
+  const fallo = verificarAdmin(request, env);
+  if (fallo) return fallo;
+  if (!env.PARTICIPANTES) {
+    return json({ error: "Falta conectar el KV 'PARTICIPANTES' en Cloudflare." }, 500);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Datos inválidos." }, 400);
+  }
+
+  const v = validarParticipante(body);
+  if (v.error) return json({ error: v.error }, 400);
+  const { cedula, nombre, talla, telefono } = v.datos;
+
+  const key = `p:${cedula}`;
+  if ((await env.PARTICIPANTES.get(key)) !== null) {
+    return json({ error: "Esta cédula ya está registrada." }, 409);
+  }
+
+  const registro = { cedula, nombre, talla, telefono, fecha: new Date().toISOString() };
+  await env.PARTICIPANTES.put(key, JSON.stringify(registro), { metadata: registro });
+  return json({ ok: true, registro });
+}
